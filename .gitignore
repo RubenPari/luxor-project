@@ -1,0 +1,346 @@
+# ============================================
+# Luxor Project - Fullstack .gitignore
+# ============================================
+
+# ============================================
+# Development Environment
+# ============================================
+
+# Warp
+.warp/
+
+# IDE - VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# IDE - JetBrains (PhpStorm, WebStorm, etc.)
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+
+# IDE - Vim
+*.swp
+*.swo
+*.swn
+*~
+.*.sw?
+
+# IDE - Emacs
+*~
+\#*\#
+.\#*
+
+# IDE - Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ============================================
+# Operating System
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+.nfs*
+
+# ============================================
+# Client (React + TypeScript + Vite)
+# ============================================
+
+# Dependencies
+client/node_modules/
+client/.pnp
+client/.pnp.js
+
+# Build output
+client/dist/
+client/dist-ssr/
+client/build/
+client/out/
+
+# Testing
+client/coverage/
+client/.nyc_output/
+client/.vitest/
+
+# Environment variables
+client/.env
+client/.env.local
+client/.env.*.local
+client/.env.development.local
+client/.env.test.local
+client/.env.production.local
+
+# Logs
+client/logs/
+client/*.log
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
+client/pnpm-debug.log*
+client/lerna-debug.log*
+
+# Misc
+client/.cache/
+client/.temp/
+client/.tmp/
+
+# ============================================
+# Server (Laravel + PHP)
+# ============================================
+
+# Dependencies
+server/vendor/
+server/node_modules/
+
+# Laravel specific
+server/.env
+server/.env.backup
+server/.env.production
+server/.env.staging
+server/storage/*.key
+server/storage/pail/
+server/.phpunit.result.cache
+server/.phpunit.cache/
+server/Homestead.json
+server/Homestead.yaml
+server/auth.json
+server/npm-debug.log
+server/yarn-error.log
+
+# Build output
+server/public/build/
+server/public/hot/
+server/public/storage/
+server/public/mix-manifest.json
+
+# Testing
+server/coverage/
+server/.phpunit.cache/
+server/tests/_output/
+server/tests/_support/_generated/
+
+# Logs
+server/storage/logs/*.log
+server/*.log
+
+# Cache
+server/bootstrap/cache/*
+!server/bootstrap/cache/.gitkeep
+server/storage/framework/cache/*
+!server/storage/framework/cache/.gitignore
+server/storage/framework/sessions/*
+!server/storage/framework/sessions/.gitignore
+server/storage/framework/views/*
+!server/storage/framework/views/.gitignore
+
+# ============================================
+# Testing & Coverage (Both)
+# ============================================
+
+# Coverage reports
+coverage/
+*.lcov
+*.coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+
+# Test results
+test-results/
+junit.xml
+
+# ============================================
+# Build & Deployment
+# ============================================
+
+# Build artifacts
+build/
+dist/
+out/
+*.tar.gz
+*.zip
+
+# Docker
+.docker/
+docker-compose.override.yml
+*.dockerfile.swp
+
+# ============================================
+# Security & Secrets
+# ============================================
+
+# Environment variables
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Certificates & Keys
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+
+# Secrets
+secrets/
+*.secret
+
+# ============================================
+# Temporary & Cache Files
+# ============================================
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+*.bak
+*.backup
+*.old
+*.orig
+
+# Lock files (keep package-lock.json and composer.lock)
+# npm-shrinkwrap.json
+# package-lock.json
+# yarn.lock
+# composer.lock
+
+# ============================================
+# Database
+# ============================================
+
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+
+# Database dumps
+*.sql
+*.dump
+
+# ============================================
+# Miscellaneous
+# ============================================
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs from various tools
+*.log.*
+pid
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Compiled binary addons
+build/Release
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Next.js
+.next/
+
+# Nuxt.js
+.nuxt/
+
+# Gatsby
+.cache/
+
+# VuePress
+.vuepress/dist/
+
+# Serverless
+.serverless/
+
+# FuseBox
+.fusebox/
+
+# DynamoDB Local
+.dynamodb/
+
+# TernJS
+.tern-port
+
+# Stores VSCode versions used for testing
+.vscode-test
+
+# Temporary folders
+tmp/
+temp/
