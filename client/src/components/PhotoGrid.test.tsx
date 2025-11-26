@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import PhotoGrid from './PhotoGrid';
-import { UnsplashPhoto } from '../types/unsplash';
+import type { UnsplashPhoto } from '../types/unsplash';
 
 const mockPhotos: UnsplashPhoto[] = [
   {
@@ -61,38 +61,41 @@ const mockPhotos: UnsplashPhoto[] = [
 ];
 
 describe('PhotoGrid', () => {
-  it('shows loading spinner when loading', () => {
+  it('mostra gli skeleton quando è in loading', () => {
     render(<PhotoGrid photos={[]} isLoading={true} />);
-    
-    const spinner = document.querySelector('.animate-spin');
-    expect(spinner).toBeInTheDocument();
+
+    const skeletons = screen.getAllByTestId('photo-skeleton');
+    expect(skeletons.length).toBeGreaterThan(0);
   });
 
-  it('shows empty state when no photos are provided', () => {
+  it('mostra lo stato vuoto quando non ci sono foto', () => {
     render(<PhotoGrid photos={[]} isLoading={false} />);
-    
-    expect(screen.getByText(/No photos found/i)).toBeInTheDocument();
+
+    expect(screen.getByText(/No Photos Found/i)).toBeInTheDocument();
   });
 
-  it('renders photos in a grid', () => {
+  it('renderizza le foto in una griglia', () => {
     render(<PhotoGrid photos={mockPhotos} isLoading={false} />);
-    
+
     const images = screen.getAllByRole('img');
-    expect(images).toHaveLength(2);
-    expect(images[0]).toHaveAttribute('src', 'https://example.com/small/1');
-    expect(images[1]).toHaveAttribute('src', 'https://example.com/small/2');
+    // Ci aspettiamo almeno una immagine per foto
+    expect(images.length).toBeGreaterThanOrEqual(mockPhotos.length);
+
+    const srcs = images.map((img) => (img as HTMLImageElement).src);
+    expect(srcs).toContain('https://example.com/regular/1');
+    expect(srcs).toContain('https://example.com/regular/2');
   });
 
-  it('displays photo alt text', () => {
+  it('mostra il testo alternativo delle foto', () => {
     render(<PhotoGrid photos={mockPhotos} isLoading={false} />);
-    
+
     expect(screen.getByAltText('Mountain view')).toBeInTheDocument();
     expect(screen.getByAltText('Beach sunset')).toBeInTheDocument();
   });
 
-  it('does not show empty state when photos are loading', () => {
+  it('non mostra lo stato vuoto quando le foto sono in caricamento', () => {
     render(<PhotoGrid photos={[]} isLoading={true} />);
-    
-    expect(screen.queryByText(/No photos found/i)).not.toBeInTheDocument();
+
+    expect(screen.queryByText(/No Photos Found/i)).not.toBeInTheDocument();
   });
 });

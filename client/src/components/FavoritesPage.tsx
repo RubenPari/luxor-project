@@ -1,52 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import PhotoGrid from './PhotoGrid'
-import { getFavorites } from '../services/favorites'
-import type { UnsplashPhoto, Favorite } from '../types/unsplash'
+import { useFavorites } from '../contexts/FavoritesContext'
 
-interface FavoritesPageProps {
-  onToggleFavorite: (photo: UnsplashPhoto) => void
-}
-
-export default function FavoritesPage({ onToggleFavorite }: FavoritesPageProps) {
-  const [favorites, setFavorites] = useState<Favorite[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    loadFavorites()
-  }, [])
-
-  const loadFavorites = async () => {
-    setIsLoading(true)
-    setError(null)
-    
-    try {
-      const response = await getFavorites()
-      if (response.success && Array.isArray(response.data)) {
-        setFavorites(response.data)
-      } else {
-        setError(response.message || 'Failed to load favorites')
-      }
-    } catch (err) {
-      setError('An error occurred while loading favorites')
-      console.error('Load favorites error:', err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+export default function FavoritesPage() {
+  const { favorites, favoriteIds, isLoading } = useFavorites()
 
   const photos = favorites.map((fav) => fav.photo_data)
-  const favoritePhotoIds = new Set(favorites.map((fav) => fav.photo_id))
-
-  // When we are on the Favorites page, toggling can only mean "remove from favorites".
-  // Keep the local `favorites` state in sync with the global App state.
-  const handleToggleFavoriteLocal = (photo: UnsplashPhoto) => {
-    // Call parent handler so it updates global favoritePhotoIds + backend
-    onToggleFavorite(photo)
-
-    // Optimistically remove from the local list so the card disappears immediately
-    setFavorites((prev) => prev.filter((fav) => fav.photo_id !== photo.id))
-  }
+  const favoritePhotoIds = useMemo(() => new Set(favorites.map((fav) => fav.photo_id)), [favorites])
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -59,13 +19,7 @@ export default function FavoritesPage({ onToggleFavorite }: FavoritesPageProps) 
         </p>
       </header>
 
-      {error && (
-        <div className="text-center my-8 p-4 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg">
-          <p><strong>Error:</strong> {error}</p>
-        </div>
-      )}
-
-      {!isLoading && favorites.length === 0 && !error && (
+      {!isLoading && favorites.length === 0 && (
         <div className="text-center py-16 text-gray-500 dark:text-gray-400">
           <div className="inline-block bg-gray-100 dark:bg-gray-800 p-6 rounded-full mb-4">
             <svg className="w-16 h-16 text-red-400 dark:text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -84,7 +38,7 @@ export default function FavoritesPage({ onToggleFavorite }: FavoritesPageProps) 
           photos={photos}
           isLoading={isLoading}
           favoritePhotoIds={favoritePhotoIds}
-          onToggleFavorite={handleToggleFavoriteLocal}
+          onToggleFavorite={undefined}
         />
       </div>
     </div>

@@ -12,7 +12,10 @@ interface PhotoGridProps {
 
 // Skeleton per stato di caricamento
 const PhotoSkeleton = () => (
-  <div className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-md animate-pulse">
+  <div
+    data-testid="photo-skeleton"
+    className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-md animate-pulse"
+  >
     <div className="w-full h-64 bg-gray-300 dark:bg-gray-700 rounded-t-lg"></div>
     <div className="p-4">
       <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4"></div>
