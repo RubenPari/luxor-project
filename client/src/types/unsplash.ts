@@ -36,3 +36,19 @@ export interface UnsplashSearchResponse {
   message?: string;
   error?: string;
 }
+
+export interface Favorite {
+  id: number;
+  user_id: number | null;
+  photo_id: string;
+  photo_data: UnsplashPhoto;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FavoriteResponse {
+  success: boolean;
+  data?: Favorite | Favorite[];
+  message?: string;
+  error?: string;
+}

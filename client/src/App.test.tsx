@@ -1,27 +1,35 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from './test/utils'
 import userEvent from '@testing-library/user-event'
 import App from './App'
 
-describe('App Component', () => {
-  it('renders the app with title', () => {
+vi.mock('./services/favorites', () => ({
+  getFavorites: vi.fn().mockResolvedValue({ success: true, data: [] }),
+  addFavorite: vi.fn().mockResolvedValue({ success: true, data: {} }),
+  removeFavorite: vi.fn().mockResolvedValue({ success: true }),
+}))
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+
+describe('App', () => {
+  it('mostra il titolo principale e la barra di ricerca', () => {
     render(<App />)
-    expect(screen.getByText('Vite + React')).toBeInTheDocument()
+
+    expect(screen.getByText('Luxor Photo Search')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Search for anything...')).toBeInTheDocument()
   })
 
-  it('renders count button with initial value', () => {
-    render(<App />)
-    const button = screen.getByRole('button', { name: /count is 0/i })
-    expect(button).toBeInTheDocument()
-  })
-
-  it('increments count when button is clicked', async () => {
+  it('permette di cambiare vista tra Search e Favorites', async () => {
     const user = userEvent.setup()
     render(<App />)
-    
-    const button = screen.getByRole('button', { name: /count is 0/i })
-    await user.click(button)
-    
-    expect(screen.getByRole('button', { name: /count is 1/i })).toBeInTheDocument()
+
+    // Vista di default: Search
+    expect(screen.getByText('Luxor Photo Search')).toBeInTheDocument()
+
+    // Passa a Favorites
+    await user.click(screen.getByRole('button', { name: /favorites/i }))
+    expect(screen.getByText('Your Favorites')).toBeInTheDocument()
   })
 })

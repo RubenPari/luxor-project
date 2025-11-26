@@ -1,93 +1,117 @@
-import { useState } from 'react'
-import SearchBar from './components/SearchBar'
-import PhotoGrid from './components/PhotoGrid'
-import { searchPhotos } from './services/unsplash'
+import { useState, useEffect } from 'react'
+import Navigation from './components/Navigation'
+import SearchPage from './components/SearchPage'
+import FavoritesPage from './components/FavoritesPage'
+import { getFavorites, addFavorite, removeFavorite } from './services/favorites'
 import type { UnsplashPhoto } from './types/unsplash'
 
 function App() {
-  const [photos, setPhotos] = useState<UnsplashPhoto[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [currentView, setCurrentView] = useState<'search' | 'favorites'>('search')
+  const [favoritePhotoIds, setFavoritePhotoIds] = useState<Set<string>>(new Set())
   const [error, setError] = useState<string | null>(null)
-  const [currentQuery, setCurrentQuery] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(0)
 
-  const handleSearch = async (query: string, page: number = 1) => {
-    setIsLoading(true)
-    setError(null)
-    setCurrentQuery(query)
-    setCurrentPage(page)
+  // Carica i preferiti all'avvio per il badge in navigazione
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        const response = await getFavorites()
+        if (response.success && Array.isArray(response.data)) {
+          const ids = new Set(response.data.map((fav) => fav.photo_id))
+          setFavoritePhotoIds(ids)
+        } else {
+          setError(response.message || 'Impossibile caricare i preferiti.')
+        }
+      } catch (err) {
+        setError('Si è verificato un errore inatteso durante il caricamento dei preferiti.')
+        console.error(err)
+      }
+    }
+
+    loadFavorites()
+  }, [])
+
+  const handleToggleFavorite = async (photo: UnsplashPhoto) => {
+    const isFavorite = favoritePhotoIds.has(photo.id)
+
+    // Aggiornamento ottimistico
+    setFavoritePhotoIds((prev) => {
+      const next = new Set(prev)
+      if (isFavorite) {
+        next.delete(photo.id)
+      } else {
+        next.add(photo.id)
+      }
+      return next
+    })
 
     try {
-      const response = await searchPhotos(query, page, 12)
-      
-      if (response.success) {
-        setPhotos(response.data.results)
-        setTotalPages(response.data.total_pages)
-      } else {
-        setError(response.message || 'Failed to search photos')
+      const response = isFavorite
+        ? await removeFavorite(photo.id)
+        : await addFavorite(photo)
+
+      if (!response.success) {
+        setError(response.message || `Impossibile ${isFavorite ? 'rimuovere' : 'aggiungere'} il preferito.`)
+
+        // rollback in caso di errore
+        setFavoritePhotoIds((prev) => {
+          const next = new Set(prev)
+          if (isFavorite) {
+            next.add(photo.id)
+          } else {
+            next.delete(photo.id)
+          }
+          return next
+        })
       }
     } catch (err) {
-      setError('An error occurred while searching. Please try again.')
-      console.error('Search error:', err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handlePageChange = async (newPage: number) => {
-    if (currentQuery && newPage > 0 && newPage <= totalPages) {
-      await handleSearch(currentQuery, newPage)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      setError('Si è verificato un errore inatteso durante l\'aggiornamento dei preferiti.')
+      console.error(err)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4">
-      <div className="w-full mx-auto">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Unsplash Photo Search
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Search for beautiful, free images from Unsplash
-          </p>
-        </header>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+      <Navigation
+        currentView={currentView}
+        onViewChange={setCurrentView}
+        favoritesCount={favoritePhotoIds.size}
+      />
 
-        <div className="mb-8">
-          <SearchBar onSearch={(query) => handleSearch(query, 1)} isLoading={isLoading} />
-        </div>
-
+      <main className="container mx-auto p-4 md:p-8">
         {error && (
-          <div className="mb-6 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-lg">
-            {error}
-          </div>
-        )}
-
-        <PhotoGrid photos={photos} isLoading={isLoading} />
-
-        {!isLoading && photos.length > 0 && totalPages > 1 && (
-          <div className="mt-8 flex justify-center items-center gap-4">
+          <div
+            className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-md shadow-md"
+            role="alert"
+          >
+            <p className="font-bold">Errore</p>
+            <p>{error}</p>
             <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              onClick={() => setError(null)}
+              className="mt-2 px-3 py-1 bg-red-200 text-red-800 text-sm rounded hover:bg-red-300"
             >
-              Previous
-            </button>
-            <span className="text-gray-700 dark:text-gray-300">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-            >
-              Next
+              Chiudi
             </button>
           </div>
         )}
-      </div>
+
+        {currentView === 'search' ? (
+          <SearchPage
+            favoritePhotoIds={favoritePhotoIds}
+            onToggleFavorite={handleToggleFavorite}
+          />
+        ) : (
+          <FavoritesPage onToggleFavorite={handleToggleFavorite} />
+        )}
+      </main>
+
+      <footer className="bg-white dark:bg-gray-800 shadow-inner py-6 mt-12">
+        <div className="container mx-auto text-center text-gray-600 dark:text-gray-400">
+          <p>&copy; 2025 Luxor. Tutti i diritti riservati.</p>
+          <p className="mt-1">
+            Powered by React, Tailwind CSS, and the Unsplash API.
+          </p>
+        </div>
+      </footer>
     </div>
   )
 }
