@@ -1,15 +1,16 @@
 import { ReactElement } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
+import { FavoritesProvider } from '../contexts/FavoritesContext'
 
 /**
  * Custom render function that wraps components with providers
- * Add any global providers here (e.g., Router, Theme, Store)
+ * Aggiungi qui tutti i provider globali (es. Router, Theme, Store)
  */
 const customRender = (
   ui: ReactElement,
   options?: Omit<RenderOptions, 'wrapper'>
 ) => {
-  return render(ui, { ...options })
+  return render(<FavoritesProvider>{ui}</FavoritesProvider>, { ...options })
 }
 
 // Re-export everything from testing library
