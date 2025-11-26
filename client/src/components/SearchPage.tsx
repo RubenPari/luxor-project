@@ -1,58 +1,29 @@
 import { useState, FormEvent } from 'react'
 import PhotoGrid from './PhotoGrid'
-import { searchPhotos } from '../services/unsplash'
-import type { UnsplashPhoto } from '../types/unsplash'
+import { useFavorites } from '../contexts/FavoritesContext'
+import { useUnsplashSearch } from '../hooks/useUnsplashSearch'
 
-interface SearchPageProps {
-  favoritePhotoIds: Set<string>
-  onToggleFavorite: (photo: UnsplashPhoto) => void
-}
-
-export default function SearchPage({ favoritePhotoIds, onToggleFavorite }: SearchPageProps) {
+export default function SearchPage() {
+  const { favoriteIds, toggleFavorite } = useFavorites()
   const [query, setQuery] = useState('')
-  const [photos, setPhotos] = useState<UnsplashPhoto[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [currentQuery, setCurrentQuery] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(0)
 
-  const handleSearch = async (searchQuery: string, page: number = 1) => {
-    if (!searchQuery.trim()) return
-
-    setIsLoading(true)
-    setError(null)
-    setCurrentQuery(searchQuery)
-    setCurrentPage(page)
-
-    try {
-      const response = await searchPhotos(searchQuery, page, 12)
-      if (response.success) {
-        setPhotos(response.data.results)
-        setTotalPages(response.data.total_pages)
-      } else {
-        setError(response.message || 'Failed to search photos')
-        setPhotos([])
-      }
-    } catch (err) {
-      setError('An error occurred while searching. Please try again.')
-      setPhotos([])
-      console.error('Search error:', err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const {
+    photos,
+    isLoading,
+    error,
+    currentPage,
+    totalPages,
+    search,
+    goToPage,
+  } = useUnsplashSearch({ perPage: 12 })
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    handleSearch(query, 1)
+    void search(query)
   }
 
-  const handlePageChange = async (newPage: number) => {
-    if (currentQuery && newPage > 0 && newPage <= totalPages) {
-      await handleSearch(currentQuery, newPage)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
+  const handlePageChange = (newPage: number) => {
+    void goToPage(newPage)
   }
 
   return (
@@ -107,8 +78,8 @@ export default function SearchPage({ favoritePhotoIds, onToggleFavorite }: Searc
         <PhotoGrid 
           photos={photos} 
           isLoading={isLoading} 
-          favoritePhotoIds={favoritePhotoIds}
-          onToggleFavorite={onToggleFavorite}
+          favoritePhotoIds={favoriteIds}
+          onToggleFavorite={toggleFavorite}
         />
       </div>
 
