@@ -7,6 +7,7 @@ use App\Http\Requests\UnsplashSearchRequest;
 use App\Services\UnsplashService;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class UnsplashController extends Controller
 {
@@ -26,16 +27,14 @@ class UnsplashController extends Controller
 
             $data = $this->unsplashService->searchPhotos($query, $page, $perPage);
 
-            return response()->json([
-                'success' => true,
-                'data' => $data,
-            ]);
+            return $this->success($data);
         } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to search photos',
-                'error' => $e->getMessage(),
-            ], 500);
+            Log::error('Failed to search photos', [
+                'exception' => $e,
+                'query' => $request->input('query'),
+            ]);
+
+            return $this->failure('Failed to search photos', $e->getMessage(), 500);
         }
     }
 }

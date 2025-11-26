@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreFavoriteRequest;
 use App\Models\Favorite;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class FavoriteController extends Controller
 {
@@ -16,71 +17,54 @@ class FavoriteController extends Controller
     {
         try {
             $userId = $request->input('user_id');
-            
+
             $query = Favorite::query();
-            
+
             if ($userId) {
                 $query->where('user_id', $userId);
             } else {
                 $query->whereNull('user_id');
             }
-            
+
             $favorites = $query->orderBy('created_at', 'desc')->get();
-            
-            return response()->json([
-                'success' => true,
-                'data' => $favorites,
-            ]);
+
+            return $this->success($favorites);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch favorites',
-                'error' => $e->getMessage(),
-            ], 500);
+            Log::error('Failed to fetch favorites', [
+                'exception' => $e,
+                'user_id' => $request->input('user_id'),
+            ]);
+
+            return $this->failure('Failed to fetch favorites', $e->getMessage(), 500);
         }
     }
 
     /**
      * Add a photo to favorites
      */
-    public function store(Request $request)
+    public function store(StoreFavoriteRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'photo_id' => 'required|string',
-            'photo_data' => 'required|array',
-            'user_id' => 'nullable|exists:users,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
+        $data = $request->validated();
 
         try {
             $favorite = Favorite::updateOrCreate(
                 [
-                    'user_id' => $request->input('user_id'),
-                    'photo_id' => $request->input('photo_id'),
+                    'user_id' => $data['user_id'] ?? null,
+                    'photo_id' => $data['photo_id'],
                 ],
                 [
-                    'photo_data' => $request->input('photo_data'),
+                    'photo_data' => $data['photo_data'],
                 ]
             );
 
-            return response()->json([
-                'success' => true,
-                'data' => $favorite,
-                'message' => 'Photo added to favorites',
-            ], 201);
+            return $this->success($favorite, 'Photo added to favorites', 201);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to add favorite',
-                'error' => $e->getMessage(),
-            ], 500);
+            Log::error('Failed to add favorite', [
+                'exception' => $e,
+                'payload' => $data,
+            ]);
+
+            return $this->failure('Failed to add favorite', $e->getMessage(), 500);
         }
     }
 
@@ -91,36 +75,32 @@ class FavoriteController extends Controller
     {
         try {
             $userId = $request->input('user_id');
-            
+
             $query = Favorite::where('photo_id', $photoId);
-            
+
             if ($userId) {
                 $query->where('user_id', $userId);
             } else {
                 $query->whereNull('user_id');
             }
-            
+
             $favorite = $query->first();
-            
+
             if (!$favorite) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Favorite not found',
-                ], 404);
+                return $this->failure('Favorite not found', null, 404);
             }
-            
+
             $favorite->delete();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Photo removed from favorites',
-            ]);
+
+            return $this->success(null, 'Photo removed from favorites');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to remove favorite',
-                'error' => $e->getMessage(),
-            ], 500);
+            Log::error('Failed to remove favorite', [
+                'exception' => $e,
+                'photo_id' => $photoId,
+                'user_id' => $request->input('user_id'),
+            ]);
+
+            return $this->failure('Failed to remove favorite', $e->getMessage(), 500);
         }
     }
 }
