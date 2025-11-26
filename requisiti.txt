@@ -1,0 +1,18 @@
+1. Come utente, voglio cercare foto su Unsplash tramite una barra di
+ricerca, in modo da trovare immagini pertinenti (COMPLETATO)
+
+
+2. Come utente, voglio vedere i risultati della mia ricerca in una griglia
+responsive, in modo da esplorare facilmente le immagini
+
+
+3. Come utente, voglio aggiungere una foto ai preferiti, in modo da
+conservarla per uso futuro
+
+
+4. Come utente, voglio rimuovere una foto dai preferiti, in modo da
+gestire la mia raccolta personale
+
+
+5. Come utente, voglio visualizzare tutte le mie foto preferite in una
+sezione dedicata, in modo da accedervi rapidamente
