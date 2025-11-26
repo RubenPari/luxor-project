@@ -2,7 +2,6 @@ import { useState } from 'react'
 import SearchBar from './components/SearchBar'
 import PhotoGrid from './components/PhotoGrid'
 import { searchPhotos } from './services/unsplash'
-import './App.css'
 import type { UnsplashPhoto } from './types/unsplash'
 
 function App() {
@@ -36,16 +35,16 @@ function App() {
     }
   }
 
-  const handlePageChange = (newPage: number) => {
+  const handlePageChange = async (newPage: number) => {
     if (currentQuery && newPage > 0 && newPage <= totalPages) {
-      handleSearch(currentQuery, newPage)
+      await handleSearch(currentQuery, newPage)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
+      <div className="w-full mx-auto">
         <header className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
             Unsplash Photo Search

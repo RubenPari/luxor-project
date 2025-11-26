@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Unsplash\HttpClient;
+use Unsplash\Photo;
 use Unsplash\Search;
 
 class UnsplashService
@@ -12,6 +14,7 @@ class UnsplashService
      * Search for photos on Unsplash
      *
      * @return array{results: array, total: int, total_pages: int}
+     * @throws Exception
      */
     public function searchPhotos(string $query, int $page = 1, int $perPage = 12): array
     {
@@ -19,7 +22,7 @@ class UnsplashService
             $accessKey = config('unsplash.access_key');
 
             if (empty($accessKey)) {
-                throw new \Exception('Unsplash access key is not configured');
+                throw new Exception('Unsplash access key is not configured');
             }
 
             HttpClient::init([
@@ -35,7 +38,7 @@ class UnsplashService
                 'total' => $pageResult->getTotal(),
                 'total_pages' => $pageResult->getTotalPages(),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Unsplash API error: '.$e->getMessage(), [
                 'query' => $query,
                 'page' => $page,
@@ -49,7 +52,7 @@ class UnsplashService
     /**
      * Format photo data for API response
      *
-     * @param  array<\Unsplash\Photo>  $photos
+     * @param  array<Photo>  $photos
      * @return array<array>
      */
     private function formatPhotos(array $photos): array

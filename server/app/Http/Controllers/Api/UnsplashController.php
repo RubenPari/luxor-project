@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UnsplashSearchRequest;
 use App\Services\UnsplashService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 
 class UnsplashController extends Controller
@@ -29,7 +30,7 @@ class UnsplashController extends Controller
                 'success' => true,
                 'data' => $data,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to search photos',
