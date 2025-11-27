@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @file app.php
+ * @description Bootstrap dell'applicazione Laravel.
+ * 
+ * Configura routing, middleware e gestione eccezioni.
+ */
+
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,7 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Abilita CORS per le richieste API dal frontend
+        $middleware->api(prepend: [
+            \App\Http\Middleware\Cors::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
