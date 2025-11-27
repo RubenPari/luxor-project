@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * @file database.php
+ * @description Configurazione delle connessioni database.
+ * 
+ * Definisce:
+ * - Connessione di default (sqlite per questo progetto)
+ * - Configurazioni per diversi driver (SQLite, MySQL, PostgreSQL, etc.)
+ * - Tabella delle migrazioni
+ * - Connessioni Redis
+ * 
+ * L'applicazione usa SQLite per semplicità di setup locale.
+ */
+
 use Illuminate\Support\Str;
 
 return [

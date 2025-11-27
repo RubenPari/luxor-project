@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * @file app.php
+ * @description Configurazione principale dell'applicazione Laravel.
+ * 
+ * Definisce le impostazioni fondamentali:
+ * - Nome e ambiente dell'applicazione
+ * - Debug mode e URL base
+ * - Timezone e localizzazione
+ * - Chiave di crittografia
+ * - Configurazione maintenance mode
+ * 
+ * I valori vengono letti dalle variabili d'ambiente (.env).
+ */
+
 return [
 
     /*

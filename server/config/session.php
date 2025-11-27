@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Configurazione Sessioni Laravel
+ *
+ * Questo file definisce le impostazioni per la gestione delle sessioni:
+ * - Driver sessione (database, file, redis, cookie)
+ * - Lifetime e crittografia sessioni
+ * - Configurazioni cookie (secure, http_only, same_site)
+ * - Garbage collection e pulizia sessioni scadute
+ *
+ * @package Luxor\Config
+ * @see https://laravel.com/docs/session
+ */
+
 use Illuminate\Support\Str;
 
 return [

@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Configurazione Logging Laravel
+ *
+ * Questo file definisce le impostazioni per il sistema di logging:
+ * - Canale log predefinito (stack, single, daily)
+ * - Configurazioni Monolog per vari handler
+ * - Gestione deprecation warnings
+ * - Integrazione servizi esterni (Slack, Papertrail)
+ *
+ * @package Luxor\Config
+ * @see https://laravel.com/docs/logging
+ */
+
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;

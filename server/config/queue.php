@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Configurazione Code Laravel
+ *
+ * Questo file definisce le impostazioni per il sistema di code:
+ * - Connessione predefinita (database, redis, SQS, Beanstalkd)
+ * - Job batching e configurazione tabelle
+ * - Gestione job falliti
+ * - Retry e timeout configurazioni
+ *
+ * @package Luxor\Config
+ * @see https://laravel.com/docs/queues
+ */
+
 return [
 
     /*

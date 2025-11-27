@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Configurazione Servizi Esterni Laravel
+ *
+ * Questo file centralizza le credenziali per servizi di terze parti:
+ * - Postmark (email transazionale)
+ * - Resend (email API)
+ * - AWS SES (Simple Email Service)
+ * - Slack (notifiche bot)
+ *
+ * @package Luxor\Config
+ * @see https://laravel.com/docs/notifications
+ */
+
 return [
 
     /*

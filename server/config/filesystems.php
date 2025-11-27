@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Configurazione Filesystem Laravel
+ *
+ * Questo file definisce le impostazioni per la gestione dei file:
+ * - Disk predefinito (local, public, s3)
+ * - Configurazioni storage locale e cloud
+ * - Link simbolici per storage pubblico
+ *
+ * @package Luxor\Config
+ * @see https://laravel.com/docs/filesystem
+ */
+
 return [
 
     /*

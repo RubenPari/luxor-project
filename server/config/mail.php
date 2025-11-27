@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Configurazione Mail Laravel
+ *
+ * Questo file definisce le impostazioni per l'invio email:
+ * - Mailer predefinito (SMTP, SES, Postmark, Log)
+ * - Configurazioni transport multipli
+ * - Indirizzo mittente globale
+ * - Failover e round-robin per alta disponibilità
+ *
+ * @package Luxor\Config
+ * @see https://laravel.com/docs/mail
+ */
+
 return [
 
     /*

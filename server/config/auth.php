@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Configurazione Autenticazione Laravel
+ *
+ * Questo file definisce le impostazioni per l'autenticazione degli utenti:
+ * - Guard predefiniti per sessioni web
+ * - Provider utenti (Eloquent/Database)
+ * - Reset password e throttling
+ * - Timeout conferma password
+ *
+ * @package Luxor\Config
+ * @see https://laravel.com/docs/authentication
+ */
+
 return [
 
     /*

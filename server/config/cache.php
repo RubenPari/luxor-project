@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Configurazione Cache Laravel
+ *
+ * Questo file definisce le impostazioni per il sistema di caching:
+ * - Store predefinito (database, file, redis, memcached)
+ * - Configurazioni multiple store
+ * - Prefisso chiavi cache
+ *
+ * @package Luxor\Config
+ * @see https://laravel.com/docs/cache
+ */
+
 use Illuminate\Support\Str;
 
 return [
