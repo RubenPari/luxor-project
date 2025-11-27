@@ -1,32 +1,32 @@
 # ============================================
-# Multi-stage Dockerfile for Laravel Application
+# Dockerfile Multi-stage per Applicazione Laravel
 # ============================================
 
 # ============================================
-# Stage 1: Build Node Assets
+# Stage 1: Build degli Asset Node
 # ============================================
 FROM node:20-alpine AS node-builder
 
 WORKDIR /app
 
-# Copy package files
+# Copia i file package
 COPY package*.json ./
 
-# Install dependencies
+# Installa le dipendenze
 RUN npm ci --only=production
 
-# Copy source files for build
+# Copia i file sorgente per il build
 COPY . .
 
-# Build assets
+# Compila gli asset
 RUN npm run build
 
 # ============================================
-# Stage 2: PHP Base Image
+# Stage 2: Immagine Base PHP
 # ============================================
 FROM php:8.2-fpm-alpine AS base
 
-# Install system dependencies
+# Installa le dipendenze di sistema
 RUN apk add --no-cache \
     bash \
     curl \
@@ -44,7 +44,7 @@ RUN apk add --no-cache \
     supervisor \
     nginx
 
-# Install PHP extensions
+# Installa le estensioni PHP
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
     gd \
@@ -57,58 +57,52 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     opcache \
     bcmath
 
-# Install Redis extension
-RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
-    && apk del .build-deps
-
-# Install Composer
+# Installa Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Configure PHP
+# Configura PHP
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 # ============================================
-# Stage 3: Development Image
+# Stage 3: Immagine di Sviluppo
 # ============================================
 FROM base AS development
 
-# Install Xdebug for development
+# Installa Xdebug per lo sviluppo
 RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug \
     && apk del .build-deps
 
-# Xdebug configuration
+# Configurazione Xdebug
 COPY docker/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 WORKDIR /var/www/html
 
-# Copy application files
+# Copia i file dell'applicazione
 COPY --chown=www-data:www-data . .
 
-# Install PHP dependencies (including dev)
+# Installa le dipendenze PHP (incluse quelle di sviluppo)
 RUN composer install --no-interaction --no-progress
 
-# Expose port
+# Espone la porta
 EXPOSE 9000
 
 CMD ["php-fpm"]
 
 # ============================================
-# Stage 4: Production Image
+# Stage 4: Immagine di Produzione
 # ============================================
 FROM base AS production
 
-# Set working directory
+# Imposta la directory di lavoro
 WORKDIR /var/www/html
 
-# Copy composer files
+# Copia i file composer
 COPY composer.json composer.lock ./
 
-# Install production PHP dependencies
+# Installa le dipendenze PHP di produzione
 RUN composer install \
     --no-dev \
     --no-interaction \
@@ -116,37 +110,33 @@ RUN composer install \
     --optimize-autoloader \
     --no-scripts
 
-# Copy application files
+# Copia i file dell'applicazione
 COPY --chown=www-data:www-data . .
 
-# Copy built assets from node-builder
+# Copia gli asset compilati da node-builder
 COPY --from=node-builder --chown=www-data:www-data /app/public/build ./public/build
 
-# Run Laravel optimization commands
+# Esegue i comandi di ottimizzazione Laravel
 RUN php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache
 
-# Configure Nginx
+# Configura Nginx
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
 
-# Configure Supervisor
+# Configura Supervisor
 COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Set correct permissions
+# Imposta i permessi corretti
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Create logs directory
+# Crea la directory dei log
 RUN mkdir -p /var/log/supervisor
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost/api/health || exit 1
-
-# Expose port
+# Espone la porta
 EXPOSE 80
 
-# Start supervisor
+# Avvia supervisor
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
