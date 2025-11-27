@@ -4,37 +4,36 @@
  * 
  * Renderizza la barra di navigazione sticky in alto con:
  * - Logo/brand dell'applicazione
- * - Pulsanti per switchare tra Search e Favorites
+ * - Link per navigare tra Search e Favorites (React Router)
  * - Badge con conteggio preferiti
  * 
+ * Utilizza NavLink di React Router per gestire lo stato attivo.
  * Supporta dark mode tramite le classi Tailwind dark:*
  */
+
+import { NavLink } from 'react-router-dom'
 
 /**
  * Props per il componente Navigation.
  */
 interface NavigationProps {
-  /** Vista attualmente attiva ('search' o 'favorites') */
-  currentView: 'search' | 'favorites';
-  /** Callback invocata quando l'utente cambia vista */
-  onViewChange: (view: 'search' | 'favorites') => void;
   /** Numero di foto nei preferiti (mostrato come badge) */
   favoritesCount: number;
 }
 
 /**
- * Componente di navigazione con tab per switchare tra le viste.
+ * Componente di navigazione con link per switchare tra le route.
  * 
  * Caratteristiche:
  * - Sticky positioning: rimane fisso in alto durante lo scroll
- * - Stile attivo/inattivo per i pulsanti di navigazione
+ * - NavLink con stile attivo/inattivo automatico
  * - Badge numerico sui preferiti quando count > 0
  * - Logo con gradiente viola-rosa
  * 
  * @param props - Props di configurazione del componente
  * @returns Elemento nav con la barra di navigazione
  */
-export default function Navigation({ currentView, onViewChange, favoritesCount }: NavigationProps) {
+export default function Navigation({ favoritesCount }: NavigationProps) {
   // === CLASSI CSS ===
   
   /** Classi base comuni a tutti i link di navigazione */
@@ -46,6 +45,16 @@ export default function Navigation({ currentView, onViewChange, favoritesCount }
   /** Classi aggiuntive per i link inattivi (testo grigio, hover con sfondo) */
   const inactiveLinkClasses = "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700";
 
+  /**
+   * Genera le classi CSS per un NavLink in base allo stato attivo.
+   * Usato come callback per la prop className di NavLink.
+   * 
+   * @param isActive - true se il link corrisponde alla route corrente
+   * @returns Stringa con le classi CSS appropriate
+   */
+  const getLinkClasses = ({ isActive }: { isActive: boolean }) =>
+    `${linkClasses} ${isActive ? activeLinkClasses : inactiveLinkClasses}`;
+
   // === RENDERING ===
 
   return (
@@ -55,28 +64,22 @@ export default function Navigation({ currentView, onViewChange, favoritesCount }
         {/* Layout flex: logo a sinistra, navigazione a destra */}
         <div className="flex justify-between items-center h-20">
           
-          {/* Logo/Brand con gradiente */}
-          <div className="flex items-center">
+          {/* Logo/Brand con gradiente - link alla home */}
+          <NavLink to="/" className="flex items-center">
             <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-600">
               Luxor
             </h1>
-          </div>
+          </NavLink>
           
-          {/* Pulsanti di navigazione */}
+          {/* Link di navigazione */}
           <div className="flex items-center space-x-4">
-            {/* Pulsante Cerca */}
-            <button 
-              onClick={() => onViewChange('search')}
-              className={`${linkClasses} ${currentView === 'search' ? activeLinkClasses : inactiveLinkClasses}`}
-            >
+            {/* Link Cerca */}
+            <NavLink to="/" end className={getLinkClasses}>
               Cerca
-            </button>
+            </NavLink>
             
-            {/* Pulsante Preferiti con badge */}
-            <button 
-              onClick={() => onViewChange('favorites')}
-              className={`${linkClasses} ${currentView === 'favorites' ? activeLinkClasses : inactiveLinkClasses} relative`}
-            >
+            {/* Link Preferiti con badge */}
+            <NavLink to="/favorites" className={(props) => `${getLinkClasses(props)} relative`}>
               <span>Preferiti</span>
               {/* Badge numerico - visibile solo se ci sono preferiti */}
               {favoritesCount > 0 && (
@@ -84,7 +87,7 @@ export default function Navigation({ currentView, onViewChange, favoritesCount }
                   {favoritesCount}
                 </span>
               )}
-            </button>
+            </NavLink>
           </div>
         </div>
       </div>

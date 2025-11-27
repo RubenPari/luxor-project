@@ -3,15 +3,16 @@
  * @description Componente radice dell'applicazione Luxor.
  * 
  * Questo componente orchestra l'intera struttura dell'applicazione:
- * - Gestisce la navigazione tra le viste (Search/Favorites)
+ * - Gestisce la navigazione tramite React Router
  * - Mostra gli errori globali dal context dei preferiti
  * - Definisce il layout principale con header, main e footer
  * 
- * Non utilizza un router esterno (come React Router) ma gestisce
- * la navigazione internamente tramite stato, essendo un'app a due viste.
+ * Route disponibili:
+ * - / : Pagina di ricerca foto
+ * - /favorites : Pagina dei preferiti
  */
 
-import { useState } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import Navigation from './components/Navigation'
 import SearchPage from './components/SearchPage'
 import FavoritesPage from './components/FavoritesPage'
@@ -21,21 +22,14 @@ import { useFavorites } from './contexts/FavoritesContext'
  * Componente principale dell'applicazione.
  * 
  * Responsabilità:
- * - Mantiene lo stato della vista corrente (search/favorites)
+ * - Configura le route dell'applicazione con React Router
  * - Consuma il context dei preferiti per conteggio e gestione errori
  * - Renderizza il layout completo con navigazione, contenuto e footer
  * 
  * @returns JSX con la struttura completa dell'applicazione
  */
 function App() {
-  // === STATO E CONTEXT ===
-  
-  /**
-   * Stato per la vista attualmente visualizzata.
-   * - 'search': mostra la pagina di ricerca foto
-   * - 'favorites': mostra la pagina dei preferiti
-   */
-  const [currentView, setCurrentView] = useState<'search' | 'favorites'>('search')
+  // === CONTEXT ===
   
   /**
    * Valori dal context dei preferiti:
@@ -52,11 +46,7 @@ function App() {
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       
       {/* Barra di navigazione sticky in alto */}
-      <Navigation
-        currentView={currentView}
-        onViewChange={setCurrentView}
-        favoritesCount={favoriteIds.size}
-      />
+      <Navigation favoritesCount={favoriteIds.size} />
 
       {/* Contenuto principale */}
       <main className="container mx-auto p-4 md:p-8">
@@ -78,12 +68,11 @@ function App() {
           </div>
         )}
 
-        {/* Rendering condizionale della vista corrente */}
-        {currentView === 'search' ? (
-          <SearchPage />
-        ) : (
-          <FavoritesPage />
-        )}
+        {/* Route dell'applicazione */}
+        <Routes>
+          <Route path="/" element={<SearchPage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
+        </Routes>
       </main>
 
       {/* Footer con copyright e crediti */}

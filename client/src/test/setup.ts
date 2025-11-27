@@ -25,7 +25,7 @@ import * as matchers from '@testing-library/jest-dom/matchers'
  * Necessario con alcune configurazioni di bundler che non
  * iniettano automaticamente React nel scope JSX.
  */
-// @ts-expect-error: aggiungiamo React a globalThis in modo dinamico
+// @ts-ignore: aggiungiamo React a globalThis in modo dinamico
 globalThis.React = React
 
 /**

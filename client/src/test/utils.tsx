@@ -13,8 +13,9 @@
  * Uso: importare `render` da questo file invece che da @testing-library/react
  */
 
-import { ReactElement } from 'react'
-import { render, RenderOptions } from '@testing-library/react'
+import type { ReactElement } from 'react'
+import { render, type RenderOptions } from '@testing-library/react'
+import { BrowserRouter } from 'react-router-dom'
 import { FavoritesProvider } from '../contexts/FavoritesContext'
 
 /**
@@ -46,7 +47,12 @@ const customRender = (
   options?: Omit<RenderOptions, 'wrapper'>  // Esclude wrapper dalle opzioni
 ) => {
   // Wrappa il componente con tutti i provider necessari
-  return render(<FavoritesProvider>{ui}</FavoritesProvider>, { ...options })
+  return render(
+    <BrowserRouter>
+      <FavoritesProvider>{ui}</FavoritesProvider>
+    </BrowserRouter>,
+    { ...options }
+  )
 }
 
 /**

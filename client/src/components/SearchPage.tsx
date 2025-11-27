@@ -12,7 +12,7 @@
  * e il context FavoritesContext per la gestione dei preferiti.
  */
 
-import { useState, FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import PhotoGrid from './PhotoGrid'
 import { useFavorites } from '../contexts/FavoritesContext'
 import { useUnsplashSearch } from '../hooks/useUnsplashSearch'
