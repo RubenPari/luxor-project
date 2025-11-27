@@ -16,6 +16,7 @@ import { Routes, Route } from 'react-router-dom'
 import Navigation from './components/Navigation'
 import SearchPage from './components/SearchPage'
 import FavoritesPage from './components/FavoritesPage'
+import Toast from './components/Toast'
 import { useFavorites } from './contexts/FavoritesContext'
 
 /**
@@ -36,8 +37,10 @@ function App() {
    * - favoriteIds: Set per contare i preferiti (mostrato nel badge)
    * - error: eventuale errore da mostrare all'utente
    * - clearError: funzione per chiudere il messaggio di errore
+   * - toasts: array di notifiche toast da visualizzare
+   * - removeToast: funzione per rimuovere un toast
    */
-  const { favoriteIds, error, clearError } = useFavorites()
+  const { favoriteIds, error, clearError, toasts, removeToast } = useFavorites()
 
   // === RENDERING ===
 
@@ -84,6 +87,16 @@ function App() {
           </p>
         </div>
       </footer>
+
+      {/* Toast notifications */}
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
     </div>
   )
 }

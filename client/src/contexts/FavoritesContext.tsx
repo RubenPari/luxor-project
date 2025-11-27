@@ -18,6 +18,18 @@ import type { Favorite, UnsplashPhoto } from '../types/unsplash'
 import { addFavorite, getFavorites, removeFavorite } from '../services/favorites'
 
 /**
+ * Interfaccia per un messaggio toast.
+ */
+export interface ToastMessage {
+  /** ID univoco del toast */
+  id: string
+  /** Messaggio da visualizzare */
+  message: string
+  /** Tipo di toast (success, error, info) */
+  type: 'success' | 'error' | 'info'
+}
+
+/**
  * Interfaccia che definisce il valore esposto dal FavoritesContext.
  * Contiene sia lo stato che le funzioni per manipolarlo.
  */
@@ -30,12 +42,16 @@ interface FavoritesContextValue {
   isLoading: boolean
   /** Messaggio di errore corrente, null se non ci sono errori */
   error: string | null
+  /** Array di toast da visualizzare */
+  toasts: ToastMessage[]
   /** Funzione per aggiungere/rimuovere una foto dai preferiti */
   toggleFavorite: (photo: UnsplashPhoto) => Promise<void>
   /** Funzione per ricaricare la lista preferiti dal server */
   reloadFavorites: () => Promise<void>
   /** Funzione per cancellare l'errore corrente */
   clearError: () => void
+  /** Funzione per rimuovere un toast */
+  removeToast: (id: string) => void
 }
 
 /**
@@ -84,6 +100,9 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
   
   /** Messaggio di errore per feedback all'utente */
   const [error, setError] = useState<string | null>(null)
+  
+  /** Array di toast per notifiche temporanee */
+  const [toasts, setToasts] = useState<ToastMessage[]>([])
 
   // === FUNZIONI HELPER ===
   
@@ -95,6 +114,26 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
    * @returns Set contenente gli ID delle foto
    */
   const syncFavoriteIds = (items: Favorite[]) => new Set(items.map((fav) => fav.photo_id))
+  
+  /**
+   * Aggiunge un nuovo toast alla lista.
+   * 
+   * @param message - Messaggio da visualizzare
+   * @param type - Tipo di toast (success, error, info)
+   */
+  const addToast = useCallback((message: string, type: ToastMessage['type']) => {
+    const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    setToasts((prev) => [...prev, { id, message, type }])
+  }, [])
+  
+  /**
+   * Rimuove un toast dalla lista.
+   * 
+   * @param id - ID del toast da rimuovere
+   */
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id))
+  }, [])
 
   // === FUNZIONI PRINCIPALI ===
   
@@ -159,6 +198,7 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
    * @param photo - Foto da aggiungere/rimuovere dai preferiti
    */
   const toggleFavorite = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     async (photo: UnsplashPhoto) => {
       // Determina l'azione da eseguire
       const isFavorite = favoriteIds.has(photo.id)
@@ -197,7 +237,7 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
           return
         }
 
-        // STEP 3: Aggiorna l'array completo dei preferiti
+        // STEP 3: Aggiorna l'array completo dei preferiti e mostra toast
         if (!isFavorite && response.data && !Array.isArray(response.data)) {
           // Aggiunta: inserisce il nuovo preferito in testa alla lista
           const created = response.data as Favorite
@@ -206,9 +246,13 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
             const without = prev.filter((fav) => fav.photo_id !== created.photo_id)
             return [created, ...without]
           })
+          // Toast di successo per aggiunta
+          addToast('Foto aggiunta ai preferiti', 'success')
         } else if (isFavorite) {
           // Rimozione: filtra via il preferito eliminato
           setFavorites((prev) => prev.filter((fav) => fav.photo_id !== photo.id))
+          // Toast di successo per rimozione
+          addToast('Foto rimossa dai preferiti', 'success')
         }
       } catch (err) {
         // Errore di rete: log, messaggio e rollback
@@ -227,7 +271,7 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
         })
       }
     },
-    [favoriteIds],
+    [favoriteIds, addToast],
   )
 
   /**
@@ -244,9 +288,11 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
     favoriteIds,
     isLoading,
     error,
+    toasts,
     toggleFavorite,
     reloadFavorites,
     clearError,
+    removeToast,
   }
 
   return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>
