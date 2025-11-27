@@ -3,7 +3,7 @@
 /**
  * @file 2025_11_26_212951_create_favorites_table.php
  * @description Migrazione per creare la tabella 'favorites'.
- * 
+ *
  * Crea la struttura per memorizzare le foto salvate come preferiti.
  */
 
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * Migrazione: creazione tabella favorites.
- * 
+ *
  * Classe anonima che estende Migration.
  * Definisce up() per creare e down() per eliminare la tabella.
  */
@@ -21,7 +21,7 @@ return new class extends Migration
 {
     /**
      * Esegue la migrazione - crea la tabella favorites.
-     * 
+     *
      * Schema della tabella:
      * - id: BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY
      * - photo_id: VARCHAR(255) UNIQUE - ID Unsplash della foto
@@ -36,15 +36,15 @@ return new class extends Migration
         Schema::create('favorites', function (Blueprint $table) {
             // Chiave primaria auto-incrementante
             $table->id();
-            
+
             // ID univoco della foto su Unsplash (es: "abc123XYZ")
             // unique(): previene duplicati della stessa foto
             $table->string('photo_id')->unique();
-            
+
             // Dati completi della foto in formato JSON
             // Include: urls, user info, description, dimensioni, etc.
             $table->json('photo_data');
-            
+
             // Timestamp automatici created_at e updated_at
             $table->timestamps();
         });
@@ -52,9 +52,9 @@ return new class extends Migration
 
     /**
      * Annulla la migrazione - elimina la tabella favorites.
-     * 
+     *
      * Chiamato quando si esegue `php artisan migrate:rollback`.
-     * Elimina completamente la tabella e tutti i dati.
+     * Elimina la tabella e tutti i dati.
      *
      * @return void
      */

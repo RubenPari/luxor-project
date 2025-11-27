@@ -3,13 +3,10 @@
 /**
  * @file Cors.php
  * @description Middleware personalizzato per la gestione CORS.
- * 
+ *
  * Questo middleware aggiunge gli header HTTP necessari per permettere
  * le richieste cross-origin dal frontend React al backend Laravel.
- * 
- * È stato creato come soluzione alternativa/supplementare al pacchetto
- * fruitcake/laravel-cors per garantire il funzionamento in sviluppo.
- * 
+ *
  * Registrato in bootstrap/app.php come middleware globale per le API.
  */
 
@@ -21,11 +18,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Middleware CORS (Cross-Origin Resource Sharing).
- * 
+ *
  * Gestisce le richieste cross-origin in due modi:
  * 1. Risponde alle richieste preflight OPTIONS con status 200
  * 2. Aggiunge gli header CORS a tutte le risposte
- * 
+ *
  * Header aggiunti:
  * - Access-Control-Allow-Origin: * (tutte le origini)
  * - Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS
@@ -36,7 +33,7 @@ class Cors
 {
     /**
      * Gestisce una richiesta HTTP in arrivo.
-     * 
+     *
      * Intercetta tutte le richieste per:
      * - Rispondere immediatamente alle preflight OPTIONS
      * - Aggiungere header CORS alle risposte normali
@@ -58,17 +55,17 @@ class Cors
         }
 
         // Aggiungiamo gli header CORS a TUTTE le risposte
-        
+
         // Permette richieste da qualsiasi origine
         // In produzione, limitare a domini specifici
         $response->headers->set('Access-Control-Allow-Origin', '*');
-        
+
         // Metodi HTTP consentiti
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-        
+
         // Header che il client può inviare
         $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-        
+
         // Tempo di cache per le risposte preflight (24 ore in secondi)
         // Riduce il numero di richieste OPTIONS ripetute
         $response->headers->set('Access-Control-Max-Age', '86400');

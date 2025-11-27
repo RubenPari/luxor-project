@@ -3,10 +3,9 @@
 /**
  * @file Favorite.php
  * @description Modello Eloquent per i preferiti.
- * 
+ *
  * Rappresenta una foto salvata dall'utente come preferito.
- * Memorizza l'ID della foto e tutti i metadati in formato JSON
- * per consentire la visualizzazione offline senza richiamare l'API.
+ * Memorizza l'ID della foto e tutti i metadati in formato JSON.
  */
 
 namespace App\Models;
@@ -15,9 +14,9 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Modello per le foto preferite.
- * 
+ *
  * Estende il Model base di Eloquent.
- * 
+ *
  * Schema tabella 'favorites':
  * - id: chiave primaria auto-increment
  * - photo_id: ID univoco Unsplash della foto
@@ -28,7 +27,7 @@ class Favorite extends Model
 {
     /**
      * Attributi assegnabili in massa.
-     * 
+     *
      * Definisce i campi che possono essere popolati tramite
      * Favorite::create([...]) o $favorite->fill([...]).
      *
@@ -41,7 +40,7 @@ class Favorite extends Model
 
     /**
      * Cast degli attributi.
-     * 
+     *
      * Converte automaticamente photo_data da JSON a array PHP
      * quando viene letto, e da array a JSON quando viene salvato.
      *

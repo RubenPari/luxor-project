@@ -3,7 +3,7 @@
 /**
  * @file FavoriteController.php
  * @description Controller API per la gestione dei preferiti.
- * 
+ *
  * Implementa le operazioni CRUD per i preferiti:
  * - GET /api/favorites: recupera tutti i preferiti
  * - POST /api/favorites: aggiunge una foto ai preferiti
@@ -15,32 +15,34 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreFavoriteRequest;
 use App\Models\Favorite;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Controller per le operazioni sui preferiti.
- * 
+ *
  * Gestisce il salvataggio e la rimozione delle foto preferite.
  */
 class FavoriteController extends Controller
 {
     /**
      * Recupera tutti i preferiti.
-     * 
+     *
      * I risultati sono ordinati per data di creazione decrescente (più recenti prima).
      *
-     * @return \Illuminate\Http\JsonResponse Lista dei preferiti o errore
-     * 
+     * @return JsonResponse Lista dei preferiti o errore
+     *
      * @example GET /api/favorites
      */
-    public function index()
+    public function index(): JsonResponse
     {
         try {
             // Recupera tutti i preferiti ordinati per data decrescente
             $favorites = Favorite::orderBy('created_at', 'desc')->get();
 
             return $this->success($favorites);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Logga l'errore per debug
             Log::error('Failed to fetch favorites', [
                 'exception' => $e,
@@ -52,19 +54,19 @@ class FavoriteController extends Controller
 
     /**
      * Aggiunge una foto ai preferiti.
-     * 
+     *
      * Utilizza updateOrCreate per gestire sia l'inserimento che l'aggiornamento:
      * - Se il photo_id esiste già, aggiorna photo_data
      * - Altrimenti crea un nuovo record
-     * 
+     *
      * Questo previene duplicati e permette di aggiornare i metadati della foto.
      *
      * @param StoreFavoriteRequest $request Richiesta validata con photo_id, photo_data
-     * @return \Illuminate\Http\JsonResponse Preferito creato/aggiornato o errore
-     * 
-     * @example POST /api/favorites { "photo_id": "abc123", "photo_data": {...} }
+     * @return JsonResponse Preferito creato/aggiornato o errore
+     *
+     * @example POST /api/favorites {"photo_id": "abc123", "photo_data": {...} }
      */
-    public function store(StoreFavoriteRequest $request)
+    public function store(StoreFavoriteRequest $request): JsonResponse
     {
         // I dati sono già validati dal FormRequest
         $data = $request->validated();
@@ -81,7 +83,7 @@ class FavoriteController extends Controller
             );
 
             return $this->success($favorite, 'Photo added to favorites', 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Logga l'errore con il payload per debug
             Log::error('Failed to add favorite', [
                 'exception' => $e,
@@ -94,16 +96,16 @@ class FavoriteController extends Controller
 
     /**
      * Rimuove una foto dai preferiti.
-     * 
+     *
      * Cerca il preferito per photo_id, poi lo elimina.
      * Restituisce 404 se il preferito non viene trovato.
      *
      * @param string $photoId ID della foto Unsplash da rimuovere
-     * @return \Illuminate\Http\JsonResponse Conferma eliminazione o errore
-     * 
+     * @return JsonResponse Conferma eliminazione o errore
+     *
      * @example DELETE /api/favorites/abc123
      */
-    public function destroy($photoId)
+    public function destroy(string $photoId): JsonResponse
     {
         try {
             // Cerca il preferito per photo_id
@@ -118,7 +120,7 @@ class FavoriteController extends Controller
             $favorite->delete();
 
             return $this->success(null, 'Photo removed from favorites');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Logga l'errore per debug
             Log::error('Failed to remove favorite', [
                 'exception' => $e,
