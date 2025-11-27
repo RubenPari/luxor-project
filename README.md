@@ -1,146 +1,91 @@
-# Luxor Project
+# Luxor
 
-A full-stack web application built with React (TypeScript) frontend and Laravel (PHP) backend.
+Applicazione web full-stack per la ricerca e il salvataggio di foto da Unsplash.
 
-## 🚀 Quick Start
+## Descrizione
 
-### Prerequisites
+Luxor permette di:
+- Cercare foto dalla libreria Unsplash
+- Salvare le foto preferite in una collezione personale
+- Gestire i preferiti con un'interfaccia semplice e intuitiva
+
+## Stack Tecnologico
+
+- **Frontend**: React 19 + TypeScript + Tailwind CSS + Vite
+- **Backend**: Laravel 12 + PHP 8.2
+- **Database**: SQLite
+- **Testing**: Vitest (frontend) + PHPUnit (backend)
+
+## Avvio Rapido
+
+### Prerequisiti
+
 - Node.js 18+
 - PHP 8.2+
-- Composer
-- MySQL/PostgreSQL
+- Composer 2.x
 
-### Installation
+### Installazione
 
 ```bash
-# Clone the repository
+# Clonare il repository
 git clone <repository-url>
 cd luxor-project
 
-# Install client dependencies
-cd client
-npm install
-
-# Install server dependencies
-cd ../server
+# Backend
+cd server
 composer install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate
+
+# Frontend
+cd ../client
+npm install
 ```
 
-## 📂 Project Structure
+### Avviare l'Applicazione
 
-```
-luxor-project/
-├── client/          # React + TypeScript frontend
-├── server/          # Laravel PHP backend
-├── WARP.md         # Warp development guide
-├── TESTING.md      # Testing documentation
-└── README.md       # This file
-```
-
-## 🛠️ Development
-
-### Start Development Servers
-
-**Client:**
-```bash
-cd client
-npm run dev
-# Runs on http://localhost:5173
-```
-
-**Server:**
+**Terminale 1 - Backend:**
 ```bash
 cd server
 php artisan serve
-# Runs on http://localhost:8000
+# http://localhost:8000
 ```
 
-## ✅ Testing
-
-The project includes comprehensive test coverage for both frontend and backend.
-
-### Run Tests
-
-**Client (Vitest):**
+**Terminale 2 - Frontend:**
 ```bash
 cd client
-npm test                  # Run tests
-npm run test:coverage     # With coverage report
-npm run test:ui          # With UI
+npm run dev
+# http://localhost:5173
 ```
 
-**Server (PHPUnit):**
+## Documentazione
+
+- **[Manuale Utente](./MANUALE_UTENTE.md)** - Guida per gli utenti finali
+- **[Documentazione Tecnica](./DOCUMENTAZIONE_TECNICA.md)** - Guida per sviluppatori con setup locale e Docker
+
+## Struttura del Progetto
+
+```
+luxor-project/
+├── client/                    # Frontend React
+├── server/                    # Backend Laravel
+├── docker-compose.yml         # Orchestrazione Docker
+├── MANUALE_UTENTE.md          # Guida utente
+├── DOCUMENTAZIONE_TECNICA.md  # Documentazione tecnica
+└── README.md                  # Questo file
+```
+
+## Test
+
 ```bash
-cd server
-php artisan test              # Run tests
-php artisan test --coverage   # With coverage
+# Test frontend
+cd client && npm test
+
+# Test backend
+cd server && php artisan test
 ```
 
-See [TESTING.md](./TESTING.md) for detailed testing documentation.
+## Licenza
 
-## 🐳 Docker
-
-The project includes Docker support for easy deployment and development.
-
-```bash
-# Start all services with Docker Compose
-docker-compose up -d
-
-# View logs
-docker-compose logs -f server
-
-# Run migrations
-docker-compose exec server php artisan migrate
-```
-
-See [DOCKER.md](./DOCKER.md) for complete Docker documentation.
-
-## 📚 Documentation
-
-- **[WARP.md](./WARP.md)** - Complete development guide with setup, commands, and workflows
-- **[TESTING.md](./TESTING.md)** - Testing guide with examples and best practices
-- **[DOCKER.md](./DOCKER.md)** - Docker setup and deployment guide
-
-## 🏗️ Tech Stack
-
-### Frontend (Client)
-- React 19.2
-- TypeScript
-- Vite 7.x
-- Tailwind CSS 4.x
-- Vitest + React Testing Library
-
-### Backend (Server)
-- Laravel 12
-- PHP 8.2
-- PHPUnit
-- MySQL/PostgreSQL
-
-## 📝 Available Scripts
-
-### Client
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm test` - Run tests
-- `npm run lint` - Run ESLint
-
-### Server
-- `php artisan serve` - Start development server
-- `php artisan test` - Run tests
-- `php artisan migrate` - Run database migrations
-- `composer test` - Run tests via composer
-
-## 🤝 Contributing
-
-1. Create a feature branch
-2. Make your changes
-3. Write/update tests
-4. Run tests to ensure they pass
-5. Submit a pull request
-
-## 📄 License
-
-[Your License Here]
+MIT License
