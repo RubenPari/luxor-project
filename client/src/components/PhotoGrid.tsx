@@ -39,15 +39,10 @@ interface PhotoGridProps {
 const PhotoSkeleton = () => (
   <div
     data-testid="photo-skeleton"  // Test ID per i test automatizzati
-    className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-md animate-pulse"
+    className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-md animate-pulse aspect-[3/4]"
   >
-    {/* Placeholder per l'immagine */}
-    <div className="w-full h-64 bg-gray-300 dark:bg-gray-700 rounded-t-lg"></div>
-    {/* Placeholder per i metadati (simula testo) */}
-    <div className="p-4">
-      <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4"></div>
-      <div className="mt-2 h-4 bg-gray-300 dark:bg-gray-700 rounded w-1/2"></div>
-    </div>
+    {/* Placeholder che riempie l'intero spazio con aspect ratio 3:4 */}
+    <div className="w-full h-full bg-gray-300 dark:bg-gray-700 rounded-lg"></div>
   </div>
 );
 

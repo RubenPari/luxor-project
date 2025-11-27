@@ -76,12 +76,12 @@ export default function PhotoCard({ photo, isFavorite = false, onToggleFavorite 
   // === RENDERING ===
 
   return (
-    // Container card con effetto hover scale
-    <div className="group relative overflow-hidden rounded-lg shadow-lg transition-transform duration-300 ease-in-out hover:scale-105">
+    // Container card con effetto hover scale e aspect ratio fisso
+    <div className="group relative overflow-hidden rounded-lg shadow-lg transition-transform duration-300 ease-in-out hover:scale-105 aspect-[3/4]">
       
       {/* Link alla foto su Unsplash */}
-      <a href={photoPageUrl} target="_blank" rel="noopener noreferrer" className="block">
-        {/* Immagine principale con lazy loading */}
+      <a href={photoPageUrl} target="_blank" rel="noopener noreferrer" className="block h-full">
+        {/* Immagine principale con lazy loading - object-cover riempie lo spazio */}
         <img
           src={photo.urls.regular || photo.urls.small || photo.urls.thumb || ""}
           alt={photo.alt_description || photo.description || "Unsplash photo"}
