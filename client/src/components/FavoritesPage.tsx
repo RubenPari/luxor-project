@@ -5,10 +5,10 @@
  * Mostra:
  * - Header con titolo e conteggio preferiti
  * - Stato vuoto con messaggio e icona cuore
- * - Griglia delle foto preferite (senza pulsante toggle)
+ * - Griglia delle foto preferite con possibilità di rimuoverle
  * 
- * I preferiti vengono letti dal FavoritesContext.
- * A differenza della SearchPage, qui il toggle preferiti è disabilitato.
+ * I preferiti vengono letti e gestiti tramite FavoritesContext.
+ * Il pulsante cuore permette di rimuovere le foto dai preferiti.
  */
 
 import { useMemo } from 'react'
@@ -22,7 +22,7 @@ import { useFavorites } from '../contexts/FavoritesContext'
  * - Mostra conteggio dinamico delle foto salvate
  * - Stato vuoto con CTA per aggiungere preferiti
  * - Riutilizza PhotoGrid per la visualizzazione
- * - Non permette toggle preferiti (solo visualizzazione)
+ * - Permette rimozione foto dai preferiti tramite click sul cuore
  * 
  * @returns Pagina completa dei preferiti
  */
@@ -30,12 +30,12 @@ export default function FavoritesPage() {
   // === CONTEXT ===
   
   /**
-   * Dati dal context dei preferiti:
+   * Dati e azioni dal context dei preferiti:
    * - favorites: array completo dei preferiti con photo_data
-   * - favoriteIds: Set per marcare i cuori (non usato qui)
    * - isLoading: flag per stato di caricamento iniziale
+   * - toggleFavorite: funzione per aggiungere/rimuovere preferiti
    */
-  const { favorites, favoriteIds, isLoading } = useFavorites()
+  const { favorites, isLoading, toggleFavorite } = useFavorites()
 
   // === DERIVAZIONE DATI ===
   
@@ -88,7 +88,7 @@ export default function FavoritesPage() {
           photos={photos}
           isLoading={isLoading}
           favoritePhotoIds={favoritePhotoIds}
-          onToggleFavorite={undefined}  // Disabilita toggle nella pagina preferiti
+          onToggleFavorite={toggleFavorite}  // Permette rimozione dai preferiti
         />
       </div>
     </div>
