@@ -5,8 +5,6 @@
  * @description Migrazione per creare la tabella 'favorites'.
  * 
  * Crea la struttura per memorizzare le foto salvate come preferiti.
- * Supporta l'associazione opzionale con un utente per future
- * implementazioni di autenticazione.
  */
 
 use Illuminate\Database\Migrations\Migration;
@@ -26,15 +24,10 @@ return new class extends Migration
      * 
      * Schema della tabella:
      * - id: BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY
-     * - user_id: BIGINT UNSIGNED NULLABLE (FK -> users.id)
-     * - photo_id: VARCHAR(255) - ID Unsplash della foto
+     * - photo_id: VARCHAR(255) UNIQUE - ID Unsplash della foto
      * - photo_data: JSON - metadati completi della foto
      * - created_at: TIMESTAMP - data aggiunta ai preferiti
      * - updated_at: TIMESTAMP - ultima modifica
-     * 
-     * Vincoli:
-     * - UNIQUE (user_id, photo_id): previene duplicati per utente
-     * - FK user_id -> users.id con CASCADE on DELETE
      *
      * @return void
      */
@@ -44,14 +37,9 @@ return new class extends Migration
             // Chiave primaria auto-incrementante
             $table->id();
             
-            // Foreign key opzionale verso tabella users
-            // nullable(): permette preferiti senza autenticazione
-            // constrained(): crea FK verso users.id
-            // onDelete('cascade'): elimina preferiti se l'utente viene eliminato
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
-            
             // ID univoco della foto su Unsplash (es: "abc123XYZ")
-            $table->string('photo_id');
+            // unique(): previene duplicati della stessa foto
+            $table->string('photo_id')->unique();
             
             // Dati completi della foto in formato JSON
             // Include: urls, user info, description, dimensioni, etc.
@@ -59,11 +47,6 @@ return new class extends Migration
             
             // Timestamp automatici created_at e updated_at
             $table->timestamps();
-            
-            // Vincolo di unicità composto
-            // Previene che lo stesso utente salvi la stessa foto più volte
-            // Per utenti null, ogni photo_id deve comunque essere unico
-            $table->unique(['user_id', 'photo_id']);
         });
     }
 

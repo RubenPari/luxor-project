@@ -17,11 +17,9 @@ use Illuminate\Database\Eloquent\Model;
  * Modello per le foto preferite.
  * 
  * Estende il Model base di Eloquent.
- * Ogni preferito è associato opzionalmente a un utente.
  * 
  * Schema tabella 'favorites':
  * - id: chiave primaria auto-increment
- * - user_id: FK opzionale verso users (per future implementazioni auth)
  * - photo_id: ID univoco Unsplash della foto
  * - photo_data: JSON con tutti i metadati della foto
  * - created_at, updated_at: timestamp automatici
@@ -37,7 +35,6 @@ class Favorite extends Model
      * @var array<int, string> Lista dei nomi dei campi fillable
      */
     protected $fillable = [
-        'user_id',    // ID utente (opzionale, per auth futura)
         'photo_id',   // ID univoco Unsplash (es: "abc123")
         'photo_data', // JSON completo dei dati foto
     ];
@@ -53,17 +50,4 @@ class Favorite extends Model
     protected $casts = [
         'photo_data' => 'array', // JSON <-> array automatico
     ];
-
-    /**
-     * Relazione con l'utente proprietario.
-     * 
-     * Definisce la relazione belongsTo verso il modello User.
-     * Attualmente opzionale (user_id può essere null).
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 }

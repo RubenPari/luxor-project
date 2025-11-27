@@ -1,18 +1,22 @@
+User stories
 1. Come utente, voglio cercare foto su Unsplash tramite una barra di
-ricerca, in modo da trovare immagini pertinenti (COMPLETATO)
-
-
+ricerca, in modo da trovare immagini pertinenti
 2. Come utente, voglio vedere i risultati della mia ricerca in una griglia
-responsive, in modo da esplorare facilmente le immagini (COMPLETATO)
-
-
+responsive, in modo da esplorare facilmente le immagini
 3. Come utente, voglio aggiungere una foto ai preferiti, in modo da
-conservarla per uso futuro (COMPLETATO)
-
-
+conservarla per uso futuro
 4. Come utente, voglio rimuovere una foto dai preferiti, in modo da
-gestire la mia raccolta personale (COMPLETATO)
-
-
+gestire la mia raccolta personale
 5. Come utente, voglio visualizzare tutte le mie foto preferite in una
-sezione dedicata, in modo da accedervi rapidamente (COMPLETATO)
+sezione dedicata, in modo da accedervi rapidamente
+Requisiti
+- Monorepo con due folder:
+- server/ - API back-end in PHP (framework laravel).
+- client/ - front-end React + Tailwind CSS + Typescript
+- La presenza di test unitari e di integrazione è obbligatoria
+- README.md con istruzioni per l’avvio del progetto
+- La containerizzazione con Docker del server è obbbligatoria
+- Non è necessario implementare l’autenticazione, è possibile utilizzare
+una stringa generata lato client e salvata nel localstorage/cookie per
+identificare l’utente
+- Database sqlite
