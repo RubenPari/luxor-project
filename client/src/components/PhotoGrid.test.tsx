@@ -71,7 +71,7 @@ describe('PhotoGrid', () => {
   it('mostra lo stato vuoto quando non ci sono foto', () => {
     render(<PhotoGrid photos={[]} isLoading={false} />);
 
-    expect(screen.getByText(/No Photos Found/i)).toBeInTheDocument();
+    expect(screen.getByText(/Nessuna Foto Trovata/i)).toBeInTheDocument();
   });
 
   it('renderizza le foto in una griglia', () => {
@@ -96,6 +96,6 @@ describe('PhotoGrid', () => {
   it('non mostra lo stato vuoto quando le foto sono in caricamento', () => {
     render(<PhotoGrid photos={[]} isLoading={true} />);
 
-    expect(screen.queryByText(/No Photos Found/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Nessuna Foto Trovata/i)).not.toBeInTheDocument();
   });
 });

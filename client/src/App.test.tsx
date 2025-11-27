@@ -17,8 +17,8 @@ describe('App', () => {
   it('mostra il titolo principale e la barra di ricerca', () => {
     render(<App />)
 
-    expect(screen.getByText('Luxor Photo Search')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Search for anything...')).toBeInTheDocument()
+    expect(screen.getByText('Luxor Ricerca Foto')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Cerca qualsiasi cosa...')).toBeInTheDocument()
   })
 
   it('permette di cambiare vista tra Search e Favorites', async () => {
@@ -26,10 +26,10 @@ describe('App', () => {
     render(<App />)
 
     // Vista di default: Search
-    expect(screen.getByText('Luxor Photo Search')).toBeInTheDocument()
+    expect(screen.getByText('Luxor Ricerca Foto')).toBeInTheDocument()
 
     // Passa a Favorites
-    await user.click(screen.getByRole('button', { name: /favorites/i }))
-    expect(screen.getByText('Your Favorites')).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: /preferiti/i }))
+    expect(screen.getByText('I Tuoi Preferiti')).toBeInTheDocument()
   })
 })

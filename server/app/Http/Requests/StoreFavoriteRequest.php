@@ -44,8 +44,6 @@ class StoreFavoriteRequest extends FormRequest
      * - required: campo obbligatorio
      * - string: deve essere una stringa
      * - array: deve essere un array/oggetto JSON
-     * - nullable: campo opzionale (può essere null)
-     * - exists:tabella,colonna: FK deve esistere
      *
      * @return array<string, ValidationRule|array|string> Mappa campo => regole
      */
@@ -57,9 +55,6 @@ class StoreFavoriteRequest extends FormRequest
             
             // Dati completi della foto (JSON decodificato come array)
             'photo_data' => ['required', 'array'],
-            
-            // ID utente opzionale (per future implementazioni auth)
-            'user_id' => ['nullable', 'exists:users,id'],
         ];
     }
 
@@ -81,9 +76,6 @@ class StoreFavoriteRequest extends FormRequest
             // Errori per photo_data
             'photo_data.required' => 'The photo_data field is required.',
             'photo_data.array' => 'The photo_data must be a valid JSON object.',
-            
-            // Errori per user_id
-            'user_id.exists' => 'The selected user_id is invalid.',
         ];
     }
 }
