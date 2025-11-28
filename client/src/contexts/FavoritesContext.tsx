@@ -16,6 +16,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Favorite, UnsplashPhoto } from '../types/unsplash'
 import { addFavorite, getFavorites, removeFavorite } from '../services/favorites'
+import { useUserId } from '../hooks/useUserId'
 
 /**
  * Interfaccia per un messaggio toast.
@@ -87,6 +88,11 @@ interface FavoritesProviderProps {
  * </FavoritesProvider>
  */
 export function FavoritesProvider({ children }: FavoritesProviderProps) {
+  // === HOOK PERSONALIZZATI ===
+  
+  /** Ottiene l'ID univoco dell'utente (UUID dal localStorage) */
+  const userId = useUserId()
+  
   // === STATO LOCALE ===
   
   /** Array completo dei preferiti - contiene tutti i dati per il rendering */
@@ -152,7 +158,7 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
     setError(null)
 
     try {
-      const response = await getFavorites()
+      const response = await getFavorites(userId)
 
       if (response.success && Array.isArray(response.data)) {
         // Successo: aggiorna entrambi gli stati
@@ -174,7 +180,7 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [userId])
 
   /**
    * Effect per il caricamento iniziale dei preferiti.
@@ -217,8 +223,8 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
       try {
         // STEP 2: Chiamata API al backend
         const response = isFavorite
-          ? await removeFavorite(photo.id)
-          : await addFavorite(photo)
+          ? await removeFavorite(photo.id, userId)
+          : await addFavorite(photo, userId)
 
         if (!response.success) {
           // Errore dal server: mostra messaggio e rollback
@@ -271,7 +277,7 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
         })
       }
     },
-    [favoriteIds, addToast],
+    [favoriteIds, addToast, userId],
   )
 
   /**
