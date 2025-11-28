@@ -21,6 +21,7 @@
  */
 
 use App\Http\Middleware\Cors;
+use App\Http\Middleware\UserIdentifierMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -60,6 +61,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // di comunicare con il backend (localhost:80 via nginx)
         $middleware->api(prepend: [
             Cors::class,
+            UserIdentifierMiddleware::class,
         ]);
     })
     /**

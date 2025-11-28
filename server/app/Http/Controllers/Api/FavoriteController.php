@@ -15,9 +15,11 @@ namespace App\Http\Controllers\Api;
 use App\Contracts\FavoriteRepositoryInterface;
 use App\Enums\HttpStatusCode;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\UserIdentifierMiddleware;
 use App\Http\Requests\StoreFavoriteRequest;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -37,18 +39,21 @@ class FavoriteController extends Controller
     ) {}
 
     /**
-     * Recupera tutti i preferiti.
+     * Recupera tutti i preferiti dell'utente.
      *
      * I risultati sono ordinati per data di creazione decrescente (più recenti prima).
+     * I preferiti sono filtrati per l'utente corrente tramite X-User-ID header.
      *
-     * @return JsonResponse Lista dei preferiti o errore
+     * @param Request $request Richiesta HTTP (contiene l'header X-User-ID)
+     * @return JsonResponse Lista dei preferiti dell'utente o errore
      *
      * @example GET /api/favorites
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         try {
-            $favorites = $this->repository->all();
+            $userId = $request->header('X-User-ID');
+            $favorites = $this->repository->all($userId);
 
             return $this->success($favorites);
         } catch (Exception $e) {
@@ -63,13 +68,14 @@ class FavoriteController extends Controller
     }
 
     /**
-     * Aggiunge una foto ai preferiti.
+     * Aggiunge una foto ai preferiti dell'utente.
      *
      * Utilizza updateOrCreate per gestire sia l'inserimento che l'aggiornamento:
-     * - Se il photo_id esiste già, aggiorna photo_data
+     * - Se il (user_id, photo_id) esiste già, aggiorna photo_data
      * - Altrimenti crea un nuovo record
      *
-     * Questo previene duplicati e permette di aggiornare i metadati della foto.
+     * Questo previene duplicati per utente e permette di aggiornare i metadati della foto.
+     * L'utente è identificato tramite X-User-ID header.
      *
      * @param StoreFavoriteRequest $request Richiesta validata con photo_id, photo_data
      * @return JsonResponse Preferito creato/aggiornato o errore
@@ -79,11 +85,13 @@ class FavoriteController extends Controller
     public function store(StoreFavoriteRequest $request): JsonResponse
     {
         $data = $request->validated();
+        $userId = $request->header('X-User-ID');
 
         try {
             $favorite = $this->repository->save(
                 $data['photo_id'],
-                $data['photo_data']
+                $data['photo_data'],
+                $userId
             );
 
             return $this->success(
@@ -95,6 +103,7 @@ class FavoriteController extends Controller
             Log::error('Failed to add favorite', [
                 'exception' => $e,
                 'payload' => $data,
+                'user_id' => $userId,
             ]);
 
             return $this->failure(
@@ -106,20 +115,24 @@ class FavoriteController extends Controller
     }
 
     /**
-     * Rimuove una foto dai preferiti.
+     * Rimuove una foto dai preferiti dell'utente.
      *
-     * Cerca il preferito per photo_id, poi lo elimina.
+     * Cerca il preferito per (user_id, photo_id), poi lo elimina.
      * Restituisce 404 se il preferito non viene trovato.
+     * L'utente è identificato tramite X-User-ID header.
      *
      * @param string $photoId ID della foto Unsplash da rimuovere
+     * @param Request $request Richiesta HTTP (contiene l'header X-User-ID)
      * @return JsonResponse Conferma eliminazione o errore
      *
      * @example DELETE /api/favorites/abc123
      */
-    public function destroy(string $photoId): JsonResponse
+    public function destroy(string $photoId, Request $request): JsonResponse
     {
+        $userId = $request->header('X-User-ID');
+        
         try {
-            $favorite = $this->repository->findByPhotoId($photoId);
+            $favorite = $this->repository->findByPhotoId($photoId, $userId);
 
             if (!$favorite) {
                 return $this->failure(
@@ -136,6 +149,7 @@ class FavoriteController extends Controller
             Log::error('Failed to remove favorite', [
                 'exception' => $e,
                 'photo_id' => $photoId,
+                'user_id' => $userId,
             ]);
 
             return $this->failure(
