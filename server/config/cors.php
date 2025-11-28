@@ -4,7 +4,10 @@
  * @file cors.php
  * @description Configurazione CORS (Cross-Origin Resource Sharing) per Laravel.
  * 
- * Permette al frontend (localhost:5173) di comunicare con il backend (localhost:8000).
+ * NOTA: Questo file non è attualmente utilizzato perché l'app usa un middleware
+ * CORS personalizzato in app/Http/Middleware/Cors.php che permette tutte le origini (*).
+ * 
+ * Configurazione mantenuta per riferimento e futuri usi in produzione.
  */
 
 return [
@@ -37,12 +40,19 @@ return [
     |--------------------------------------------------------------------------
     |
     | Lista delle origini (domini) che possono effettuare richieste cross-origin.
-    | In sviluppo includiamo localhost:5173 (Vite dev server).
+    | 
+    | In sviluppo con Docker:
+    | - localhost:3000 - Frontend React/Vite esposto dall'host
+    | - localhost:5173 - Porta interna Vite (per riferimento)
+    | 
+    | Nota: il middleware personalizzato attualmente permette tutte le origini (*).
     |
     */
     'allowed_origins' => [
         'http://localhost:5173',
         'http://127.0.0.1:5173',
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
     ],
 
     /*
