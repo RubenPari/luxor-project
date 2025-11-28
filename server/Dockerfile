@@ -12,8 +12,8 @@ WORKDIR /app
 # Copia i file package
 COPY package*.json ./
 
-# Installa le dipendenze
-RUN npm ci --only=production
+# Installa le dipendenze (incluse devDependencies per il build)
+RUN npm ci
 
 # Copia i file sorgente per il build
 COPY . .
@@ -26,27 +26,42 @@ RUN npm run build
 # ============================================
 FROM php:8.2-fpm-alpine AS base
 
-# Installa le dipendenze di sistema
+# Installa le dipendenze di sistema (runtime)
 RUN apk add --no-cache \
     bash \
     curl \
+    libcurl \
+    openssl \
     git \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libzip-dev \
+    libpng \
+    libjpeg-turbo \
+    freetype \
+    libzip \
     zip \
     unzip \
-    icu-dev \
-    oniguruma-dev \
-    postgresql-dev \
+    icu-libs \
+    oniguruma \
+    postgresql-libs \
     mysql-client \
     supervisor \
     nginx
 
-# Installa le estensioni PHP
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+# Installa le estensioni PHP (incluso curl)
+RUN apk add --no-cache --virtual .build-deps \
+    ${PHPIZE_DEPS} \
+    curl-dev \
+    openssl-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libzip-dev \
+    icu-dev \
+    oniguruma-dev \
+    postgresql-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-configure curl --with-curl \
     && docker-php-ext-install -j$(nproc) \
+    curl \
     gd \
     pdo \
     pdo_mysql \
@@ -55,7 +70,17 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     intl \
     mbstring \
     opcache \
-    bcmath
+    bcmath \
+    && docker-php-ext-enable curl \
+    && runDeps="$( \
+        scanelf --needed --nobanner --format '%n#p' --recursive /usr/local \
+            | tr ',' '\n' \
+            | sort -u \
+            | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
+    )" \
+    && apk add --no-cache $runDeps \
+    && apk del .build-deps \
+    && rm -rf /tmp/*
 
 # Installa Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -117,9 +142,7 @@ COPY --chown=www-data:www-data . .
 COPY --from=node-builder --chown=www-data:www-data /app/public/build ./public/build
 
 # Esegue i comandi di ottimizzazione Laravel
-RUN php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+RUN php artisan route:cache
 
 # Configura Nginx
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf

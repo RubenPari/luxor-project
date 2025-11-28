@@ -1,9 +1,6 @@
 version: '3.8'
 
 services:
-  # ============================================
-  # Applicazione Laravel (Server)
-  # ============================================
   server:
     build:
       context: ./server
@@ -16,58 +13,15 @@ services:
     environment:
       - APP_ENV=production
       - APP_DEBUG=false
-      - DB_CONNECTION=mysql
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_DATABASE=luxor
-      - DB_USERNAME=luxor
-      - DB_PASSWORD=secret
-      - CACHE_DRIVER=database
-      - SESSION_DRIVER=database
-      - QUEUE_CONNECTION=database
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/var/www/html/database/database.sqlite
     volumes:
       - ./server/storage:/var/www/html/storage
-      - ./server/.env:/var/www/html/.env:ro
-    depends_on:
-      - mysql
+      - ./server/database:/var/www/html/database
+      - ./server/.env:/var/www/html/.env
     networks:
       - luxor-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
-  # ============================================
-  # Database MySQL
-  # ============================================
-  mysql:
-    image: mysql:8.0
-    container_name: luxor-mysql
-    restart: unless-stopped
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=luxor
-      - MYSQL_USER=luxor
-      - MYSQL_PASSWORD=secret
-    volumes:
-      - mysql-data:/var/lib/mysql
-      - ./server/database/init:/docker-entrypoint-initdb.d
-    networks:
-      - luxor-network
-    command: --default-authentication-plugin=mysql_native_password
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # ============================================
-  # Client React (Sviluppo)
-  # ============================================
   client:
     build:
       context: ./client
@@ -86,37 +40,6 @@ services:
     depends_on:
       - server
 
-  # ============================================
-  # phpMyAdmin (Opzionale)
-  # ============================================
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: luxor-phpmyadmin
-    restart: unless-stopped
-    ports:
-      - "8080:80"
-    environment:
-      - PMA_HOST=mysql
-      - PMA_PORT=3306
-      - PMA_USER=luxor
-      - PMA_PASSWORD=secret
-    depends_on:
-      - mysql
-    networks:
-      - luxor-network
-    profiles:
-      - tools
-
-# ============================================
-# Reti
-# ============================================
 networks:
   luxor-network:
     driver: bridge
-
-# ============================================
-# Volumi
-# ============================================
-volumes:
-  mysql-data:
-    driver: local
