@@ -13,6 +13,8 @@
 
 namespace App\Providers;
 
+use App\Contracts\FavoriteRepositoryInterface;
+use App\Repositories\FavoriteRepository;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -47,8 +49,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Nessun servizio personalizzato da registrare
-        // UnsplashService viene risolto automaticamente tramite autowiring
+        // Binding interfaccia -> implementazione concreta
+        // Permette di iniettare FavoriteRepositoryInterface nei controller
+        $this->app->bind(
+            FavoriteRepositoryInterface::class,
+            FavoriteRepository::class
+        );
     }
 
     /**

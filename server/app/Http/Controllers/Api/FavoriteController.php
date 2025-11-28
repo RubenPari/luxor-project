@@ -12,9 +12,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\FavoriteRepositoryInterface;
+use App\Enums\HttpStatusCode;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreFavoriteRequest;
-use App\Models\Favorite;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -27,6 +28,15 @@ use Illuminate\Support\Facades\Log;
 class FavoriteController extends Controller
 {
     /**
+     * Costruttore con dependency injection del repository.
+     *
+     * @param FavoriteRepositoryInterface $repository Repository per i preferiti
+     */
+    public function __construct(
+        private FavoriteRepositoryInterface $repository
+    ) {}
+
+    /**
      * Recupera tutti i preferiti.
      *
      * I risultati sono ordinati per data di creazione decrescente (più recenti prima).
@@ -38,17 +48,17 @@ class FavoriteController extends Controller
     public function index(): JsonResponse
     {
         try {
-            // Recupera tutti i preferiti ordinati per data decrescente
-            $favorites = Favorite::orderBy('created_at', 'desc')->get();
+            $favorites = $this->repository->all();
 
             return $this->success($favorites);
         } catch (Exception $e) {
-            // Logga l'errore per debug
-            Log::error('Failed to fetch favorites', [
-                'exception' => $e,
-            ]);
+            Log::error('Failed to fetch favorites', ['exception' => $e]);
 
-            return $this->failure('Failed to fetch favorites', $e->getMessage(), 500);
+            return $this->failure(
+                'Failed to fetch favorites',
+                $e->getMessage(),
+                HttpStatusCode::INTERNAL_SERVER_ERROR->value
+            );
         }
     }
 
@@ -68,29 +78,30 @@ class FavoriteController extends Controller
      */
     public function store(StoreFavoriteRequest $request): JsonResponse
     {
-        // I dati sono già validati dal FormRequest
         $data = $request->validated();
 
         try {
-            // Crea o aggiorna il preferito
-            $favorite = Favorite::updateOrCreate(
-                [
-                    'photo_id' => $data['photo_id'],  // Chiave: ID foto Unsplash
-                ],
-                [
-                    'photo_data' => $data['photo_data'],  // Dati da aggiornare
-                ]
+            $favorite = $this->repository->save(
+                $data['photo_id'],
+                $data['photo_data']
             );
 
-            return $this->success($favorite, 'Photo added to favorites', 201);
+            return $this->success(
+                $favorite,
+                'Photo added to favorites',
+                HttpStatusCode::CREATED->value
+            );
         } catch (Exception $e) {
-            // Logga l'errore con il payload per debug
             Log::error('Failed to add favorite', [
                 'exception' => $e,
                 'payload' => $data,
             ]);
 
-            return $this->failure('Failed to add favorite', $e->getMessage(), 500);
+            return $this->failure(
+                'Failed to add favorite',
+                $e->getMessage(),
+                HttpStatusCode::INTERNAL_SERVER_ERROR->value
+            );
         }
     }
 
@@ -108,26 +119,30 @@ class FavoriteController extends Controller
     public function destroy(string $photoId): JsonResponse
     {
         try {
-            // Cerca il preferito per photo_id
-            $favorite = Favorite::where('photo_id', $photoId)->first();
+            $favorite = $this->repository->findByPhotoId($photoId);
 
-            // Verifica che esista
             if (!$favorite) {
-                return $this->failure('Favorite not found', null, 404);
+                return $this->failure(
+                    'Favorite not found',
+                    null,
+                    HttpStatusCode::NOT_FOUND->value
+                );
             }
 
-            // Elimina il record
-            $favorite->delete();
+            $this->repository->delete($favorite);
 
             return $this->success(null, 'Photo removed from favorites');
         } catch (Exception $e) {
-            // Logga l'errore per debug
             Log::error('Failed to remove favorite', [
                 'exception' => $e,
                 'photo_id' => $photoId,
             ]);
 
-            return $this->failure('Failed to remove favorite', $e->getMessage(), 500);
+            return $this->failure(
+                'Failed to remove favorite',
+                $e->getMessage(),
+                HttpStatusCode::INTERNAL_SERVER_ERROR->value
+            );
         }
     }
 }

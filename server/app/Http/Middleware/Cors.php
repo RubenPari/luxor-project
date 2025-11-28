@@ -12,6 +12,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Constants\ApiConstants;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,31 +45,26 @@ class Cors
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Le richieste preflight OPTIONS vengono inviate dal browser
-        // prima delle richieste effettive per verificare i permessi CORS.
-        // Rispondiamo subito con 200 OK senza processare ulteriormente.
+        // Guard clause: preflight OPTIONS risponde subito
         if ($request->isMethod('OPTIONS')) {
-            $response = response('', 200);
-        } else {
-            // Per tutte le altre richieste, procediamo con la pipeline
-            $response = $next($request);
+            return $this->addCorsHeaders(response('', 200));
         }
 
-        // Aggiungiamo gli header CORS a TUTTE le risposte
+        return $this->addCorsHeaders($next($request));
+    }
 
-        // Permette richieste da qualsiasi origine
-        // In produzione, limitare a domini specifici
+    /**
+     * Aggiunge gli header CORS alla risposta.
+     *
+     * @param Response $response La risposta da modificare
+     * @return Response La risposta con header CORS
+     */
+    private function addCorsHeaders(Response $response): Response
+    {
         $response->headers->set('Access-Control-Allow-Origin', '*');
-
-        // Metodi HTTP consentiti
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-
-        // Header che il client può inviare
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-
-        // Tempo di cache per le risposte preflight (24 ore in secondi)
-        // Riduce il numero di richieste OPTIONS ripetute
-        $response->headers->set('Access-Control-Max-Age', '86400');
+        $response->headers->set('Access-Control-Allow-Methods', ApiConstants::CORS_ALLOWED_METHODS);
+        $response->headers->set('Access-Control-Allow-Headers', ApiConstants::CORS_ALLOWED_HEADERS);
+        $response->headers->set('Access-Control-Max-Age', (string) ApiConstants::CORS_MAX_AGE_SECONDS);
 
         return $response;
     }

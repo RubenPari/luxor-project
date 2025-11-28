@@ -15,10 +15,11 @@
 
 namespace App\Services;
 
+use App\Constants\ApiConstants;
+use App\DataTransferObjects\PhotoData;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Unsplash\HttpClient;
-use Unsplash\Photo;
 use Unsplash\Search;
 
 /**
@@ -49,22 +50,18 @@ class UnsplashService
      * $service->searchPhotos('montagna', 1, 12);
      * // Restituisce: ['results' => [...], 'total' => 1000, 'total_pages' => 84]
      */
-    public function searchPhotos(string $query, int $page = 1, int $perPage = 12): array
+    public function searchPhotos(string $query, int $page = 1, int $perPage = ApiConstants::DEFAULT_PER_PAGE): array
     {
         try {
-            // Recupera la chiave API dalla configurazione
             $accessKey = config('unsplash.access_key');
 
-            // Verifica che la chiave sia configurata
             if (empty($accessKey)) {
                 throw new Exception('Unsplash access key is not configured');
             }
 
-            // Inizializza il client HTTP Unsplash
-            // utmSource è richiesto per l'attribuzione nelle statistiche Unsplash
             HttpClient::init([
                 'applicationId' => $accessKey,
-                'utmSource' => 'Luxor Project',
+                'utmSource' => ApiConstants::UNSPLASH_UTM_SOURCE,
             ]);
 
             // Esegue la ricerca tramite la libreria Unsplash
@@ -92,61 +89,19 @@ class UnsplashService
 
     /**
      * Formatta i dati delle foto per la risposta API.
-     * 
-     * Trasforma l'array di oggetti Photo in un formato pulito
-     * contenente solo i campi necessari al frontend.
-     * Usa il null coalescing (??) per gestire campi mancanti.
      *
-     * @param array<Photo> $photos Array di oggetti Photo da Unsplash
+     * Converte gli oggetti Photo in DTO PhotoData tipizzati,
+     * poi li serializza in array per la risposta JSON.
+     *
+     * @param array $photos Array di oggetti Photo da Unsplash
      * @return array<array> Array di foto formattate
      */
     private function formatPhotos(array $photos): array
     {
-        return array_map(function ($photo) {
-            // Converte l'oggetto Photo in array
+        return array_map(function ($photo): array {
             $photoData = $photo->toArray();
 
-            // Estrae e struttura solo i campi necessari
-            return [
-                // Identificativo univoco della foto
-                'id' => $photoData['id'] ?? null,
-                
-                // Dimensioni originali
-                'width' => $photoData['width'] ?? null,
-                'height' => $photoData['height'] ?? null,
-                
-                // Testi descrittivi
-                'description' => $photoData['description'] ?? null,
-                'alt_description' => $photoData['alt_description'] ?? null,
-                
-                // URL delle varie dimensioni dell'immagine
-                'urls' => [
-                    'raw' => $photoData['urls']['raw'] ?? null,       // Originale
-                    'full' => $photoData['urls']['full'] ?? null,     // Alta risoluzione
-                    'regular' => $photoData['urls']['regular'] ?? null, // 1080px
-                    'small' => $photoData['urls']['small'] ?? null,   // 400px
-                    'thumb' => $photoData['urls']['thumb'] ?? null,   // 200px
-                ],
-                
-                // Link correlati
-                'links' => [
-                    'self' => $photoData['links']['self'] ?? null,       // API endpoint
-                    'html' => $photoData['links']['html'] ?? null,       // Pagina web
-                    'download' => $photoData['links']['download'] ?? null, // Download
-                ],
-                
-                // Informazioni sul fotografo
-                'user' => [
-                    'id' => $photoData['user']['id'] ?? null,
-                    'username' => $photoData['user']['username'] ?? null,
-                    'name' => $photoData['user']['name'] ?? null,
-                    'portfolio_url' => $photoData['user']['portfolio_url'] ?? null,
-                    'profile_image' => $photoData['user']['profile_image']['medium'] ?? null,
-                ],
-                
-                // Data di caricamento
-                'created_at' => $photoData['created_at'] ?? null,
-            ];
+            return PhotoData::fromArray($photoData)->toArray();
         }, $photos);
     }
 }
