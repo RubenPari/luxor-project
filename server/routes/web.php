@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Route;
  * 
  * Restituisce la view 'welcome' di Laravel.
  * Non usata nell'applicazione - il frontend React
- * è servito separatamente da Vite (localhost:5173).
+ * è servito separatamente da Vite (localhost:3000).
  * 
  * @route GET /
  */

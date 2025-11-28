@@ -158,12 +158,12 @@ php artisan serve
 ```bash
 cd client
 npm run dev
-# Server disponibile su http://localhost:5173
+# Server disponibile su http://localhost:3000
 ```
 
 ### 5. Verificare l'Installazione
 
-- Apri http://localhost:5173 nel browser
+- Apri http://localhost:3000 nel browser
 - Prova a cercare "nature" nella barra di ricerca
 - Verifica che le foto vengano caricate
 - Prova ad aggiungere una foto ai preferiti
@@ -240,7 +240,7 @@ services:
     container_name: luxor-client
     restart: unless-stopped
     ports:
-      - "5173:5173"
+      - "3000:3000"
     environment:
       - VITE_API_URL=http://localhost:8000/api
     volumes:
@@ -270,9 +270,9 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 5173
+EXPOSE 3000
 
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+CMD ["npm", "run", "dev"]
 ```
 
 ### 4. Avviare con Docker Compose

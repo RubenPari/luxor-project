@@ -56,8 +56,8 @@ return Application::configure(basePath: dirname(__DIR__))
      */
     ->withMiddleware(function (Middleware $middleware): void {
         // Registra il middleware CORS personalizzato per le route API
-        // Necessario per permettere al frontend (localhost:5173)
-        // di comunicare con il backend (localhost:8000)
+        // Necessario per permettere al frontend (localhost:3000)
+        // di comunicare con il backend (localhost:80 via nginx)
         $middleware->api(prepend: [
             Cors::class,
         ]);

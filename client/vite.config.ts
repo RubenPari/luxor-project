@@ -45,15 +45,15 @@ export default defineConfig({
   /**
    * Configurazione del dev server.
    * 
-   * Necessaria per l'esecuzione in Docker:
+   * Configurazione per Docker e sviluppo locale:
    * - host: '0.0.0.0' permette le connessioni dall'esterno del container
-   * - port: 5173 è la porta interna del container (mappata su 3000 dall'host)
+   * - port: 3000 porta standard usata sia dentro che fuori Docker
    * - strictPort: true impedisce a Vite di cambiare porta automaticamente
    * - usePolling: true abilita il file watching in ambienti virtualizzati (Docker/WSL)
    */
   server: {
     host: '0.0.0.0',
-    port: 5173,
+    port: 3000,
     strictPort: true,
     watch: {
       usePolling: true,

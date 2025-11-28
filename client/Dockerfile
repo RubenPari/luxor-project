@@ -20,8 +20,8 @@ RUN npm install
 # Questo viene eseguito dopo npm install per ottimizzare la cache di Docker
 COPY . .
 
-# Esponi la porta 5173 (porta interna Vite)
-# Verrà mappata su 3000 dall'host tramite docker-compose
-EXPOSE 5173
+# Esponi la porta 3000 (porta standard Vite personalizzata)
+# Stessa porta usata sia dentro che fuori Docker per semplicità
+EXPOSE 3000
 
 # Il comando di avvio è definito in docker-compose.yml: npm run dev

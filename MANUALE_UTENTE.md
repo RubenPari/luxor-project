@@ -13,7 +13,7 @@ Luxor è un'applicazione web che ti permette di:
 
 ### Accedere all'Applicazione
 
-Apri il tuo browser e vai all'indirizzo dove è ospitata l'applicazione (tipicamente `http://localhost:5173` in ambiente di sviluppo).
+Apri il tuo browser e vai all'indirizzo dove è ospitata l'applicazione (tipicamente `http://localhost:3000` in ambiente di sviluppo).
 
 Verrai accolto dalla pagina principale con la barra di ricerca.
 

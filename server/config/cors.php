@@ -41,16 +41,13 @@ return [
     |
     | Lista delle origini (domini) che possono effettuare richieste cross-origin.
     | 
-    | In sviluppo con Docker:
-    | - localhost:3000 - Frontend React/Vite esposto dall'host
-    | - localhost:5173 - Porta interna Vite (per riferimento)
+    | In sviluppo:
+    | - localhost:3000 - Frontend React/Vite (porta standard del progetto)
     | 
     | Nota: il middleware personalizzato attualmente permette tutte le origini (*).
     |
     */
     'allowed_origins' => [
-        'http://localhost:5173',
-        'http://127.0.0.1:5173',
         'http://localhost:3000',
         'http://127.0.0.1:3000',
     ],

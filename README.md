@@ -56,7 +56,7 @@ php artisan serve
 ```bash
 cd client
 npm run dev
-# http://localhost:5173
+# http://localhost:3000
 ```
 
 ## Documentazione
