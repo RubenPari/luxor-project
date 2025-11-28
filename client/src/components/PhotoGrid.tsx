@@ -10,8 +10,12 @@
  * La griglia è completamente responsive con breakpoint configurabili.
  */
 
-import type { UnsplashPhoto } from '../types/unsplash';
-import PhotoCard from './PhotoCard';
+import { memo } from 'react'
+import type { UnsplashPhoto } from '../types/unsplash'
+import PhotoCard from './PhotoCard'
+import EmptyState from './EmptyState'
+import { PhotoIcon } from './icons'
+import { SKELETON_COUNT, DEFAULT_GRID_COLS } from '../constants'
 
 /**
  * Props per il componente PhotoGrid.
@@ -34,17 +38,20 @@ interface PhotoGridProps {
  * Mostra un placeholder animato con pulse effect mentre i dati
  * vengono caricati dal server.
  * 
+ * Memoizzato per evitare re-render non necessari.
+ * 
  * @returns Elemento placeholder con animazione pulse
  */
-const PhotoSkeleton = () => (
-  <div
-    data-testid="photo-skeleton"  // Test ID per i test automatizzati
-    className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-md animate-pulse aspect-[3/4]"
-  >
-    {/* Placeholder che riempie l'intero spazio con aspect ratio 3:4 */}
-    <div className="w-full h-full bg-gray-300 dark:bg-gray-700 rounded-lg"></div>
-  </div>
-);
+const PhotoSkeleton = memo(function PhotoSkeleton() {
+  return (
+    <div
+      data-testid="photo-skeleton"
+      className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-md animate-pulse aspect-[3/4]"
+    >
+      <div className="w-full h-full bg-gray-300 dark:bg-gray-700 rounded-lg" />
+    </div>
+  )
+})
 
 /**
  * Componente griglia per visualizzare una collezione di foto.
@@ -67,63 +74,41 @@ export default function PhotoGrid({
   isLoading = false,
   favoritePhotoIds = new Set(),
   onToggleFavorite,
-  gridCols = 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4',
+  gridCols = DEFAULT_GRID_COLS,
 }: PhotoGridProps) {
-  
   // === STATO: CARICAMENTO ===
-  // Mostra 12 skeleton mentre i dati vengono caricati
   if (isLoading) {
     return (
       <div className={`grid ${gridCols} gap-8`}>
-        {Array.from({ length: 12 }).map((_, index) => (
-          <PhotoSkeleton key={index} />
+        {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
+          <PhotoSkeleton key={`skeleton-${index}`} />
         ))}
       </div>
-    );
+    )
   }
 
   // === STATO: NESSUN RISULTATO ===
-  // Mostra messaggio informativo quando non ci sono foto
   if (photos.length === 0) {
     return (
-      <div className="text-center py-16 text-gray-500 dark:text-gray-400">
-        {/* Icona decorativa */}
-        <div className="inline-block bg-gray-100 dark:bg-gray-800 p-6 rounded-full mb-4">
-          <svg
-            className="w-16 h-16 text-gray-400 dark:text-gray-500"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l-1.586-1.586a2 2 0 010-2.828L14 8"
-            />
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-          </svg>
-        </div>
-        {/* Messaggio e suggerimento */}
-        <h3 className="text-2xl font-semibold mb-2">Nessuna Foto Trovata</h3>
-        <p className="text-lg">Prova un termine di ricerca diverso per trovare quello che cerchi.</p>
-      </div>
-    );
+      <EmptyState
+        icon={<PhotoIcon className="w-16 h-16 text-gray-400 dark:text-gray-500" />}
+        title="Nessuna Foto Trovata"
+        description="Prova un termine di ricerca diverso per trovare quello che cerchi."
+      />
+    )
   }
 
   // === STATO: DATI PRESENTI ===
-  // Renderizza la griglia di PhotoCard
   return (
     <div className={`grid ${gridCols} gap-8`}>
       {photos.map((photo) => (
         <PhotoCard
-          key={photo.id}  // ID univoco per React reconciliation
+          key={photo.id}
           photo={photo}
-          isFavorite={favoritePhotoIds.has(photo.id)}  // Lookup O(1) nel Set
+          isFavorite={favoritePhotoIds.has(photo.id)}
           onToggleFavorite={onToggleFavorite}
         />
       ))}
     </div>
-  );
+  )
 }

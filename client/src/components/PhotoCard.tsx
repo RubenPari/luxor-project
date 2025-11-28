@@ -11,7 +11,10 @@
  * Design responsive con effetto scale on hover.
  */
 
-import type { UnsplashPhoto } from "../types/unsplash";
+import { memo } from 'react'
+import type { UnsplashPhoto } from "../types/unsplash"
+import { HeartIcon } from './icons'
+import { PHOTO_CARD_ASPECT_RATIO } from '../constants'
 
 /**
  * Props per il componente PhotoCard.
@@ -38,7 +41,7 @@ interface PhotoCardProps {
  * @param props - Props di configurazione
  * @returns Card foto con interazioni
  */
-export default function PhotoCard({ photo, isFavorite = false, onToggleFavorite }: PhotoCardProps) {
+function PhotoCard({ photo, isFavorite = false, onToggleFavorite }: PhotoCardProps) {
   
   // === EVENT HANDLERS ===
   
@@ -77,7 +80,7 @@ export default function PhotoCard({ photo, isFavorite = false, onToggleFavorite 
 
   return (
     // Container card con effetto hover scale e aspect ratio fisso
-    <div className="group relative overflow-hidden rounded-lg shadow-lg transition-transform duration-300 ease-in-out hover:scale-105 aspect-[3/4]">
+    <div className={`group relative overflow-hidden rounded-lg shadow-lg transition-transform duration-300 ease-in-out hover:scale-105 aspect-[${PHOTO_CARD_ASPECT_RATIO}]`}>
       
       {/* Link alla foto su Unsplash */}
       <a href={photoPageUrl} target="_blank" rel="noopener noreferrer" className="block h-full">
@@ -105,13 +108,7 @@ export default function PhotoCard({ photo, isFavorite = false, onToggleFavorite 
           `}
         >
           {/* Icona cuore SVG */}
-          <svg className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-            <path
-              fillRule="evenodd"
-              d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-              clipRule="evenodd"
-            />
-          </svg>
+          <HeartIcon filled={isFavorite} className="h-6 w-6" />
         </button>
       )}
 
@@ -145,3 +142,6 @@ export default function PhotoCard({ photo, isFavorite = false, onToggleFavorite 
     </div>
   );
 }
+
+/** PhotoCard memoizzato per evitare re-render non necessari */
+export default memo(PhotoCard)

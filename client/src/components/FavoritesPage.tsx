@@ -13,6 +13,8 @@
 
 import { useMemo } from 'react'
 import PhotoGrid from './PhotoGrid'
+import EmptyState from './EmptyState'
+import { HeartIcon } from './icons'
 import { useFavorites } from '../contexts/FavoritesContext'
 
 /**
@@ -67,19 +69,11 @@ export default function FavoritesPage() {
 
       {/* Stato vuoto - visibile solo se non in caricamento e array vuoto */}
       {!isLoading && favorites.length === 0 && (
-        <div className="text-center py-16 text-gray-500 dark:text-gray-400">
-          {/* Icona cuore decorativa */}
-          <div className="inline-block bg-gray-100 dark:bg-gray-800 p-6 rounded-full mb-4">
-            <svg className="w-16 h-16 text-red-400 dark:text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </div>
-          {/* Messaggio e istruzioni */}
-          <h3 className="text-2xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Nessun Preferito</h3>
-          <p className="text-lg">
-            Clicca sul cuore di una foto per salvarla qui.
-          </p>
-        </div>
+        <EmptyState
+          icon={<HeartIcon filled={false} className="w-16 h-16 text-red-400 dark:text-red-500" />}
+          title="Nessun Preferito"
+          description="Clicca sul cuore di una foto per salvarla qui."
+        />
       )}
 
       {/* Container griglia con altezza minima */}

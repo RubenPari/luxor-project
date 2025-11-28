@@ -8,7 +8,9 @@
  * Posizionato in basso a destra dello schermo con animazioni di entrata/uscita.
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, memo } from 'react'
+import { CloseIcon, CheckIcon, InfoIcon } from './icons'
+import { TOAST_DURATION_MS, ANIMATION_DURATION_MS } from '../constants'
 
 /**
  * Tipi di toast disponibili.
@@ -41,7 +43,7 @@ interface ToastProps {
  * @param props - Props di configurazione
  * @returns Elemento toast o null se non visibile
  */
-export default function Toast({ message, type, duration = 3000, onClose }: ToastProps) {
+function Toast({ message, type, duration = TOAST_DURATION_MS, onClose }: ToastProps) {
   // Stato per gestire l'animazione di uscita
   const [isVisible, setIsVisible] = useState(true)
 
@@ -50,7 +52,7 @@ export default function Toast({ message, type, duration = 3000, onClose }: Toast
     // Timer per iniziare l'animazione di uscita
     const hideTimer = setTimeout(() => {
       setIsVisible(false)
-    }, duration - 300) // Inizia fade-out 300ms prima
+    }, duration - ANIMATION_DURATION_MS) // Inizia fade-out prima della rimozione
 
     // Timer per rimuovere completamente il toast
     const removeTimer = setTimeout(() => {
@@ -73,21 +75,9 @@ export default function Toast({ message, type, duration = 3000, onClose }: Toast
 
   // Icone per i diversi tipi
   const icons = {
-    success: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-      </svg>
-    ),
-    error: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-      </svg>
-    ),
-    info: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
+    success: <CheckIcon />,
+    error: <CloseIcon />,
+    info: <InfoIcon />,
   }
 
   return (
@@ -111,15 +101,16 @@ export default function Toast({ message, type, duration = 3000, onClose }: Toast
       <button
         onClick={() => {
           setIsVisible(false)
-          setTimeout(onClose, 300)
+          setTimeout(onClose, ANIMATION_DURATION_MS)
         }}
         className="ml-2 p-1 rounded hover:bg-white/20 transition-colors"
         aria-label="Chiudi notifica"
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-        </svg>
+        <CloseIcon className="w-4 h-4" />
       </button>
     </div>
   )
 }
+
+/** Toast memoizzato per evitare re-render non necessari */
+export default memo(Toast)
