@@ -34,6 +34,7 @@ class Favorite extends Model
      * @var array<int, string> Lista dei nomi dei campi fillable
      */
     protected $fillable = [
+        'user_id',    // UUID dell'utente che ha creato il preferito
         'photo_id',   // ID univoco Unsplash (es: "abc123")
         'photo_data', // JSON completo dei dati foto
     ];
