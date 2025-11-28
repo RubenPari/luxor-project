@@ -23,41 +23,48 @@ use Illuminate\Database\Eloquent\Collection;
 class FavoriteRepository implements FavoriteRepositoryInterface
 {
     /**
-     * Recupera tutti i preferiti ordinati per data decrescente.
+     * Recupera tutti i preferiti di un utente ordinati per data decrescente.
      *
-     * @return Collection<int, Favorite> Collezione di preferiti (più recenti prima)
+     * @param string $userId ID univoco dell'utente (UUID)
+     * @return Collection<int, Favorite> Collezione di preferiti dell'utente (più recenti prima)
      */
-    public function all(): Collection
+    public function all(string $userId): Collection
     {
-        return Favorite::orderBy('created_at', 'desc')->get();
+        return Favorite::where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
     /**
-     * Trova un preferito per ID foto Unsplash.
+     * Trova un preferito per ID foto Unsplash e ID utente.
      *
      * @param string $photoId ID univoco della foto su Unsplash
+     * @param string $userId ID univoco dell'utente (UUID)
      * @return Favorite|null Il preferito trovato o null se non esiste
      */
-    public function findByPhotoId(string $photoId): ?Favorite
+    public function findByPhotoId(string $photoId, string $userId): ?Favorite
     {
-        return Favorite::where('photo_id', $photoId)->first();
+        return Favorite::where('photo_id', $photoId)
+            ->where('user_id', $userId)
+            ->first();
     }
 
     /**
-     * Salva o aggiorna un preferito.
+     * Salva o aggiorna un preferito per un utente specifico.
      *
      * Utilizza updateOrCreate per gestire sia inserimento che aggiornamento:
-     * - Se photo_id esiste: aggiorna photo_data
+     * - Se (user_id, photo_id) esiste: aggiorna photo_data
      * - Altrimenti: crea nuovo record
      *
      * @param string $photoId ID univoco della foto su Unsplash
      * @param array<string, mixed> $photoData Dati completi della foto
+     * @param string $userId ID univoco dell'utente (UUID)
      * @return Favorite Il preferito creato o aggiornato
      */
-    public function save(string $photoId, array $photoData): Favorite
+    public function save(string $photoId, array $photoData, string $userId): Favorite
     {
         return Favorite::updateOrCreate(
-            ['photo_id' => $photoId],
+            ['photo_id' => $photoId, 'user_id' => $userId],
             ['photo_data' => $photoData]
         );
     }

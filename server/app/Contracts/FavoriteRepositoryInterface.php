@@ -21,28 +21,31 @@ use Illuminate\Database\Eloquent\Collection;
 interface FavoriteRepositoryInterface
 {
     /**
-     * Recupera tutti i preferiti ordinati per data decrescente.
+     * Recupera tutti i preferiti di un utente ordinati per data decrescente.
      *
-     * @return Collection<int, Favorite> Collezione di preferiti
+     * @param string $userId ID univoco dell'utente (UUID)
+     * @return Collection<int, Favorite> Collezione di preferiti dell'utente
      */
-    public function all(): Collection;
+    public function all(string $userId): Collection;
 
     /**
-     * Trova un preferito per ID foto Unsplash.
+     * Trova un preferito per ID foto Unsplash e ID utente.
      *
      * @param string $photoId ID univoco della foto su Unsplash
+     * @param string $userId ID univoco dell'utente (UUID)
      * @return Favorite|null Il preferito trovato o null
      */
-    public function findByPhotoId(string $photoId): ?Favorite;
+    public function findByPhotoId(string $photoId, string $userId): ?Favorite;
 
     /**
-     * Salva o aggiorna un preferito.
+     * Salva o aggiorna un preferito per un utente specifico.
      *
      * @param string $photoId ID univoco della foto su Unsplash
      * @param array<string, mixed> $photoData Dati completi della foto
+     * @param string $userId ID univoco dell'utente (UUID)
      * @return Favorite Il preferito creato o aggiornato
      */
-    public function save(string $photoId, array $photoData): Favorite;
+    public function save(string $photoId, array $photoData, string $userId): Favorite;
 
     /**
      * Elimina un preferito.
