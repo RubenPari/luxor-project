@@ -41,8 +41,10 @@ class ExampleTest extends TestCase
      */
     public function test_the_application_returns_a_successful_response(): void
     {
-        // Simula una richiesta GET all'API dei preferiti
-        $response = $this->get('/api/favorites');
+        // Simula una richiesta GET all'API dei preferiti con header X-User-ID
+        $response = $this->withHeaders([
+            'X-User-ID' => '550e8400-e29b-41d4-a716-446655440000',
+        ])->get('/api/favorites');
 
         // Verifica che la risposta sia 200 OK
         $response->assertStatus(200);
