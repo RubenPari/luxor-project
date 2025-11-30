@@ -37,12 +37,13 @@ function App() {
   /**
    * Valori dal context dei preferiti:
    * - favoriteIds: Set per contare i preferiti (mostrato nel badge)
+   * - isLoading: flag di caricamento iniziale dei preferiti
    * - error: eventuale errore da mostrare all'utente
    * - clearError: funzione per chiudere il messaggio di errore
    * - toasts: array di notifiche toast da visualizzare
    * - removeToast: funzione per rimuovere un toast
    */
-  const { favoriteIds, error, clearError, toasts, removeToast } = useFavorites()
+  const { favoriteIds, isLoading, error, clearError, toasts, removeToast } = useFavorites()
 
   // === RENDERING ===
 
@@ -51,7 +52,7 @@ function App() {
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       
       {/* Barra di navigazione sticky in alto */}
-      <Navigation favoritesCount={favoriteIds.size} />
+      <Navigation favoritesCount={favoriteIds.size} isLoading={isLoading} />
 
       {/* Contenuto principale */}
       <main className="container mx-auto p-4 md:p-8">
