@@ -14,6 +14,7 @@
 import { useCallback, useRef, useState } from 'react'
 import type { UnsplashPhoto } from '../types/unsplash'
 import { searchPhotos } from '../services/unsplash'
+import { useUserId } from './useUserId'
 
 /**
  * Opzioni di configurazione per l'hook useUnsplashSearch.
@@ -72,6 +73,11 @@ export function useUnsplashSearch(options: UseUnsplashSearchOptions = {}): UseUn
   // Estrae le opzioni con valori di default
   const { perPage = 12 } = options
 
+  // === HOOK PERSONALIZZATI ===
+  
+  /** Ottiene l'ID univoco dell'utente (UUID dal localStorage) */
+  const userId = useUserId()
+
   // === STATO LOCALE ===
   
   /** Risultati della ricerca corrente */
@@ -127,7 +133,7 @@ export function useUnsplashSearch(options: UseUnsplashSearchOptions = {}): UseUn
 
       try {
         // Chiama il servizio di ricerca passando il segnale di abort
-        const response = await searchPhotos(trimmed, page, perPage, controller.signal)
+        const response = await searchPhotos(trimmed, page, perPage, userId, controller.signal)
 
         if (response.success) {
           // Successo: aggiorna risultati e metadati paginazione
@@ -159,7 +165,7 @@ export function useUnsplashSearch(options: UseUnsplashSearchOptions = {}): UseUn
         }
       }
     },
-    [perPage],
+    [perPage, userId],
   )
 
   /**
