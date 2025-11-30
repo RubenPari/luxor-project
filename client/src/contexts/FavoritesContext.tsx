@@ -41,6 +41,8 @@ interface FavoritesContextValue {
   favoriteIds: Set<string>
   /** Flag che indica se è in corso il caricamento dei preferiti */
   isLoading: boolean
+  /** Set di ID foto che sono in fase di salvataggio/rimozione */
+  savingPhotoIds: Set<string>
   /** Messaggio di errore corrente, null se non ci sono errori */
   error: string | null
   /** Array di toast da visualizzare */
@@ -109,6 +111,9 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
   
   /** Array di toast per notifiche temporanee */
   const [toasts, setToasts] = useState<ToastMessage[]>([])
+  
+  /** Set di ID foto che sono in fase di salvataggio/rimozione */
+  const [savingPhotoIds, setSavingPhotoIds] = useState<Set<string>>(new Set())
 
   // === FUNZIONI HELPER ===
   
@@ -208,6 +213,9 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
     async (photo: UnsplashPhoto) => {
       // Determina l'azione da eseguire
       const isFavorite = favoriteIds.has(photo.id)
+      
+      // Aggiunge l'ID al set delle foto in salvataggio
+      setSavingPhotoIds((prev) => new Set(prev).add(photo.id))
 
       // STEP 1: Aggiornamento ottimistico sugli ID (UI immediata)
       setFavoriteIds((prev) => {
@@ -240,6 +248,13 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
             }
             return next
           })
+          
+          // Rimuove l'ID dal set delle foto in salvataggio
+          setSavingPhotoIds((prev) => {
+            const next = new Set(prev)
+            next.delete(photo.id)
+            return next
+          })
           return
         }
 
@@ -260,6 +275,13 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
           // Toast di successo per rimozione
           addToast('Foto rimossa dai preferiti', 'success')
         }
+        
+        // Rimuove l'ID dal set delle foto in salvataggio al completamento
+        setSavingPhotoIds((prev) => {
+          const next = new Set(prev)
+          next.delete(photo.id)
+          return next
+        })
       } catch (err) {
         // Errore di rete: log, messaggio e rollback
         console.error('Errore durante l\'aggiornamento dei preferiti:', err)
@@ -273,6 +295,13 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
           } else {
             next.delete(photo.id)
           }
+          return next
+        })
+        
+        // Rimuove l'ID dal set delle foto in salvataggio
+        setSavingPhotoIds((prev) => {
+          const next = new Set(prev)
+          next.delete(photo.id)
           return next
         })
       }
@@ -293,6 +322,7 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
     favorites,
     favoriteIds,
     isLoading,
+    savingPhotoIds,
     error,
     toasts,
     toggleFavorite,
