@@ -27,6 +27,8 @@ interface PhotoGridProps {
   isLoading?: boolean;
   /** Set di ID foto nei preferiti per evidenziare i cuori */
   favoritePhotoIds?: Set<string>;
+  /** Set di ID foto in fase di salvataggio/rimozione */
+  savingPhotoIds?: Set<string>;
   /** Callback per toggle preferito su una foto */
   onToggleFavorite?: (photo: UnsplashPhoto) => void;
   /** Classi Tailwind per le colonne della griglia (personalizzabile) */
@@ -73,6 +75,7 @@ export default function PhotoGrid({
   photos,
   isLoading = false,
   favoritePhotoIds = new Set(),
+  savingPhotoIds = new Set(),
   onToggleFavorite,
   gridCols = DEFAULT_GRID_COLS,
 }: PhotoGridProps) {
@@ -106,6 +109,7 @@ export default function PhotoGrid({
           key={photo.id}
           photo={photo}
           isFavorite={favoritePhotoIds.has(photo.id)}
+          isSaving={savingPhotoIds.has(photo.id)}
           onToggleFavorite={onToggleFavorite}
         />
       ))}
