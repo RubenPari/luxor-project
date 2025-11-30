@@ -45,10 +45,31 @@ class StoreFavoriteRequest extends FormRequest
             'photo_data.id' => ['required', 'string'],
             'photo_data.width' => ['nullable', 'integer'],
             'photo_data.height' => ['nullable', 'integer'],
+            'photo_data.description' => ['nullable', 'string'],
+            'photo_data.alt_description' => ['nullable', 'string'],
+            'photo_data.created_at' => ['nullable', 'string'],
+            
+            // URLs della foto
             'photo_data.urls' => ['required', 'array'],
+            'photo_data.urls.raw' => ['nullable', 'string'],
+            'photo_data.urls.full' => ['nullable', 'string'],
             'photo_data.urls.regular' => ['required', 'string'],
+            'photo_data.urls.small' => ['nullable', 'string'],
+            'photo_data.urls.thumb' => ['nullable', 'string'],
+            
+            // Links della foto
+            'photo_data.links' => ['nullable', 'array'],
+            'photo_data.links.self' => ['nullable', 'string'],
+            'photo_data.links.html' => ['nullable', 'string'],
+            'photo_data.links.download' => ['nullable', 'string'],
+            
+            // Informazioni utente/fotografo
             'photo_data.user' => ['required', 'array'],
+            'photo_data.user.id' => ['nullable', 'string'],
+            'photo_data.user.username' => ['nullable', 'string'],
             'photo_data.user.name' => ['required', 'string'],
+            'photo_data.user.portfolio_url' => ['nullable', 'string'],
+            'photo_data.user.profile_image' => ['nullable', 'string'],
         ];
     }
 
