@@ -9,6 +9,7 @@ Luxor è un'applicazione full-stack per la ricerca e il salvataggio di foto da U
 - **Frontend**: React 19 + TypeScript + Tailwind CSS + Vite
 - **Backend**: Laravel 12 + PHP 8.2
 - **Database**: SQLite
+- **Caching**: File-based (Unsplash API responses)
 
 ## Struttura del Progetto
 
@@ -32,7 +33,7 @@ luxor-project/
 │   ├── app/
 │   │   ├── Http/
 │   │   │   ├── Controllers/   # Controller API
-│   │   │   ├── Middleware/    # Middleware (CORS)
+│   │   │   ├── Middleware/    # Middleware (UserIdentifier)
 │   │   │   └── Requests/      # Form Request validation
 │   │   ├── Models/            # Eloquent Models
 │   │   ├── Providers/         # Service Providers
@@ -407,6 +408,7 @@ DELETE /api/favorites/{photoId}
 - **PhotoGrid.tsx**: Griglia responsive di foto
 - **PhotoCard.tsx**: Card singola foto con toggle preferiti
 - **Toast.tsx**: Notifiche temporanee
+- **ErrorBoundary.tsx**: Gestione errori imprevisti (React Error Boundary)
 
 ### Context API
 
@@ -451,7 +453,7 @@ const {
 
 ### Services
 
-- **UnsplashService**: Logica di comunicazione con Unsplash API
+- **UnsplashService**: Logica di comunicazione con Unsplash API. Implementa caching delle risposte per 1 ora (TTL 3600s) per ottimizzare le chiamate e rispettare i rate limit.
 
 ### Models
 
@@ -515,6 +517,15 @@ php artisan test --coverage
 php artisan test --filter=UnsplashSearchTest
 ```
 
+### Analisi Statica (PHPStan)
+
+Il progetto include PHPStan per l'analisi statica del codice.
+
+```bash
+# Eseguire l'analisi
+./vendor/bin/phpstan analyse
+```
+
 **File di test:**
 - `tests/Feature/ExampleTest.php` - Test base API
 - `tests/Feature/UnsplashSearchTest.php` - Test ricerca
@@ -549,7 +560,7 @@ php artisan route:list         # Lista route
 
 ### Errore CORS
 
-Se ricevi errori CORS, verifica che il middleware `Cors` sia registrato in `bootstrap/app.php` e che il frontend usi l'URL corretto per le API.
+Se ricevi errori CORS, verifica la configurazione in `config/cors.php` e assicurati che il frontend usi l'URL corretto per le API. Il progetto utilizza il middleware CORS nativo di Laravel.
 
 ### Database non trovato
 
