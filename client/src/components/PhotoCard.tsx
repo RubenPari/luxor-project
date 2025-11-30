@@ -60,12 +60,12 @@ function PhotoCard({ photo, isFavorite = false, onToggleFavorite }: PhotoCardPro
   // === DERIVAZIONE DATI ===
   
   /** URL della pagina foto su Unsplash (fallback a #) */
-  const photoPageUrl = photo.links?.html ?? "#";
+  const photoPageUrl = photo.links?.html?.trim() || "#";
   
   /** URL del profilo fotografo (portfolio o profilo Unsplash) */
   const userProfileUrl =
-    photo.user?.portfolio_url ||
-    (photo.user?.username ? `https://unsplash.com/@${photo.user.username}` : photoPageUrl);
+    photo.user?.portfolio_url?.trim() ||
+    (photo.user?.username?.trim() ? `https://unsplash.com/@${photo.user.username.trim()}` : photoPageUrl);
   
   /** URL avatar fotografo con fallback a thumb della foto */
   const userAvatar = photo.user?.profile_image || photo.urls.small || photo.urls.thumb || "";
