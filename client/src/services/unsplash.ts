@@ -40,7 +40,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 export async function searchPhotos(
   query: string,
   page: number = 1,
-  perPage: number = 12
+  perPage: number = 12,
+  signal?: AbortSignal
 ): Promise<UnsplashSearchResponse> {
   // Costruisce i parametri della query string
   const params = new URLSearchParams({
@@ -50,7 +51,7 @@ export async function searchPhotos(
   });
 
   // Effettua la richiesta GET all'endpoint di ricerca
-  const response = await fetch(`${API_BASE_URL}/unsplash/search?${params}`);
+  const response = await fetch(`${API_BASE_URL}/unsplash/search?${params}`, { signal });
   
   // Verifica che la risposta sia valida (status 2xx)
   if (!response.ok) {

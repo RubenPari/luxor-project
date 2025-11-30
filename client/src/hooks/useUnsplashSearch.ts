@@ -11,7 +11,7 @@
  * di consumare semplicemente i dati e le funzioni esposte.
  */
 
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import type { UnsplashPhoto } from '../types/unsplash'
 import { searchPhotos } from '../services/unsplash'
 
@@ -92,6 +92,9 @@ export function useUnsplashSearch(options: UseUnsplashSearchOptions = {}): UseUn
   /** Totale pagine disponibili (calcolato dal server) */
   const [totalPages, setTotalPages] = useState(0)
 
+  /** Riferimento per l'AbortController della richiesta corrente */
+  const abortControllerRef = useRef<AbortController | null>(null)
+
   // === FUNZIONI DI RICERCA ===
   
   /**
@@ -107,6 +110,15 @@ export function useUnsplashSearch(options: UseUnsplashSearchOptions = {}): UseUn
       const trimmed = query.trim()
       if (!trimmed) return
 
+      // Annulla eventuale richiesta precedente in corso
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+
+      // Crea nuovo controller per la richiesta corrente
+      const controller = new AbortController()
+      abortControllerRef.current = controller
+
       // Imposta lo stato di caricamento e aggiorna query/pagina
       setIsLoading(true)
       setError(null)
@@ -114,8 +126,8 @@ export function useUnsplashSearch(options: UseUnsplashSearchOptions = {}): UseUn
       setCurrentPage(page)
 
       try {
-        // Chiama il servizio di ricerca
-        const response = await searchPhotos(trimmed, page, perPage)
+        // Chiama il servizio di ricerca passando il segnale di abort
+        const response = await searchPhotos(trimmed, page, perPage, controller.signal)
 
         if (response.success) {
           // Successo: aggiorna risultati e metadati paginazione
@@ -128,14 +140,23 @@ export function useUnsplashSearch(options: UseUnsplashSearchOptions = {}): UseUn
           setTotalPages(0)
         }
       } catch (err) {
+        // Ignora errori dovuti all'abort (cancellazione volontaria)
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          return
+        }
+
         // Errore di rete o imprevisto
         console.error('Search error:', err)
         setError('An error occurred while searching. Please try again.')
         setPhotos([])
         setTotalPages(0)
       } finally {
-        // Termina sempre lo stato di caricamento
-        setIsLoading(false)
+        // Termina lo stato di caricamento solo se la richiesta non è stata abortita
+        // (se è stata abortita, una nuova richiesta ha già preso il sopravvento)
+        if (abortControllerRef.current === controller) {
+          setIsLoading(false)
+          abortControllerRef.current = null
+        }
       }
     },
     [perPage],
