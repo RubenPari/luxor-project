@@ -12,6 +12,7 @@
  */
 
 import { NavLink } from 'react-router-dom'
+import { SpinnerIcon } from './icons'
 
 /**
  * Props per il componente Navigation.
@@ -19,6 +20,8 @@ import { NavLink } from 'react-router-dom'
 interface NavigationProps {
   /** Numero di foto nei preferiti (mostrato come badge) */
   favoritesCount: number;
+  /** Flag che indica se i preferiti sono in caricamento */
+  isLoading?: boolean;
 }
 
 /**
@@ -33,7 +36,7 @@ interface NavigationProps {
  * @param props - Props di configurazione del componente
  * @returns Elemento nav con la barra di navigazione
  */
-export default function Navigation({ favoritesCount }: NavigationProps) {
+export default function Navigation({ favoritesCount, isLoading = false }: NavigationProps) {
   // === CLASSI CSS ===
   
   /** Classi base comuni a tutti i link di navigazione */
@@ -78,11 +81,17 @@ export default function Navigation({ favoritesCount }: NavigationProps) {
               Cerca
             </NavLink>
             
-            {/* Link Preferiti con badge */}
+            {/* Link Preferiti con badge/spinner */}
             <NavLink to="/favorites" className={(props) => `${getLinkClasses(props)} relative`}>
-              <span>Preferiti</span>
-              {/* Badge numerico - visibile solo se ci sono preferiti */}
-              {favoritesCount > 0 && (
+              <span className="flex items-center gap-2">
+                Preferiti
+                {/* Spinner durante il caricamento */}
+                {isLoading && (
+                  <SpinnerIcon className="h-4 w-4" />
+                )}
+              </span>
+              {/* Badge numerico - visibile solo se ci sono preferiti e non sta caricando */}
+              {!isLoading && favoritesCount > 0 && (
                 <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-pink-600 text-xs font-bold text-white">
                   {favoritesCount}
                 </span>
