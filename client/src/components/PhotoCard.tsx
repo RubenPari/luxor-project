@@ -13,7 +13,7 @@
 
 import { memo } from 'react'
 import type { UnsplashPhoto } from "../types/unsplash"
-import { HeartIcon } from './icons'
+import { HeartIcon, SpinnerIcon } from './icons'
 import { PHOTO_CARD_ASPECT_RATIO } from '../constants'
 
 /**
@@ -24,6 +24,8 @@ interface PhotoCardProps {
   photo: UnsplashPhoto;
   /** Indica se la foto è nei preferiti (default: false) */
   isFavorite?: boolean;
+  /** Indica se la foto è in fase di salvataggio/rimozione */
+  isSaving?: boolean;
   /** Callback per toggle preferito (se undefined, nasconde il pulsante) */
   onToggleFavorite?: (photo: UnsplashPhoto) => void;
 }
@@ -41,7 +43,7 @@ interface PhotoCardProps {
  * @param props - Props di configurazione
  * @returns Card foto con interazioni
  */
-function PhotoCard({ photo, isFavorite = false, onToggleFavorite }: PhotoCardProps) {
+function PhotoCard({ photo, isFavorite = false, isSaving = false, onToggleFavorite }: PhotoCardProps) {
   
   // === EVENT HANDLERS ===
   
@@ -99,16 +101,22 @@ function PhotoCard({ photo, isFavorite = false, onToggleFavorite }: PhotoCardPro
       {onToggleFavorite && (
         <button
           onClick={handleFavoriteClick}
-          title={isFavorite ? "Rimuovi dai preferiti" : "Aggiungi ai preferiti"}
+          disabled={isSaving}
+          title={isSaving ? "Salvataggio in corso..." : (isFavorite ? "Rimuovi dai preferiti" : "Aggiungi ai preferiti")}
           className={`absolute top-3 right-3 z-10 rounded-full p-2 transition-colors duration-300 
             ${isFavorite 
               ? "text-red-500 bg-white/80 hover:bg-white"  // Stile attivo: cuore rosso
               : "text-white/80 bg-black/30 hover:text-white hover:bg-black/50"  // Stile inattivo
             }
+            ${isSaving ? "opacity-75 cursor-wait" : "cursor-pointer"}
           `}
         >
-          {/* Icona cuore SVG */}
-          <HeartIcon filled={isFavorite} className="h-6 w-6" />
+          {/* Mostra spinner durante il salvataggio, altrimenti mostra il cuore */}
+          {isSaving ? (
+            <SpinnerIcon className="h-6 w-6" />
+          ) : (
+            <HeartIcon filled={isFavorite} className="h-6 w-6" />
+          )}
         </button>
       )}
 
