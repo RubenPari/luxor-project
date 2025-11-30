@@ -35,7 +35,7 @@ class FavoriteController extends Controller
      * @param FavoriteRepositoryInterface $repository Repository per i preferiti
      */
     public function __construct(
-        private FavoriteRepositoryInterface $repository
+        private \App\Services\FavoriteService $service
     ) {}
 
     /**
@@ -53,7 +53,7 @@ class FavoriteController extends Controller
     {
         try {
             $userId = $request->header('X-User-ID');
-            $favorites = $this->repository->all($userId);
+            $favorites = $this->service->all($userId);
 
             return $this->success($favorites);
         } catch (Exception $e) {
@@ -88,7 +88,7 @@ class FavoriteController extends Controller
         $userId = $request->header('X-User-ID');
 
         try {
-            $favorite = $this->repository->save(
+            $favorite = $this->service->save(
                 $data['photo_id'],
                 $data['photo_data'],
                 $userId
@@ -132,7 +132,7 @@ class FavoriteController extends Controller
         $userId = $request->header('X-User-ID');
         
         try {
-            $favorite = $this->repository->findByPhotoId($photoId, $userId);
+            $favorite = $this->service->findByPhotoId($photoId, $userId);
 
             if (!$favorite) {
                 return $this->failure(
@@ -142,7 +142,7 @@ class FavoriteController extends Controller
                 );
             }
 
-            $this->repository->delete($favorite);
+            $this->service->delete($favorite);
 
             return $this->success(null, 'Photo removed from favorites');
         } catch (Exception $e) {
