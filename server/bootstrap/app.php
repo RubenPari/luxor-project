@@ -60,7 +60,6 @@ return Application::configure(basePath: dirname(__DIR__))
         // Necessario per permettere al frontend (localhost:3000)
         // di comunicare con il backend (localhost:80 via nginx)
         $middleware->api(prepend: [
-            Cors::class,
             UserIdentifierMiddleware::class,
         ]);
     })
