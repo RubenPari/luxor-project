@@ -42,6 +42,13 @@ class StoreFavoriteRequest extends FormRequest
 
             // Dati completi della foto (JSON decodificato come array)
             'photo_data' => ['required', 'array'],
+            'photo_data.id' => ['required', 'string'],
+            'photo_data.width' => ['nullable', 'integer'],
+            'photo_data.height' => ['nullable', 'integer'],
+            'photo_data.urls' => ['required', 'array'],
+            'photo_data.urls.regular' => ['required', 'string'],
+            'photo_data.user' => ['required', 'array'],
+            'photo_data.user.name' => ['required', 'string'],
         ];
     }
 
@@ -63,6 +70,9 @@ class StoreFavoriteRequest extends FormRequest
             // Errori per photo_data
             'photo_data.required' => 'The photo_data field is required.',
             'photo_data.array' => 'The photo_data must be a valid JSON object.',
+            'photo_data.id.required' => 'The photo data must contain an ID.',
+            'photo_data.urls.required' => 'The photo data must contain URLs.',
+            'photo_data.user.required' => 'The photo data must contain user information.',
         ];
     }
 }
