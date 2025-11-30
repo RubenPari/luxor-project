@@ -18,6 +18,7 @@ import SearchPage from './components/SearchPage'
 import FavoritesPage from './components/FavoritesPage'
 import Toast from './components/Toast'
 import ErrorBanner from './components/ErrorBanner'
+import ErrorBoundary from './components/ErrorBoundary'
 import { useFavorites } from './contexts/FavoritesContext'
 
 /**
@@ -59,10 +60,12 @@ function App() {
         {error && <ErrorBanner message={error} onClose={clearError} className="mb-6" />}
 
         {/* Route dell'applicazione */}
-        <Routes>
-          <Route path="/" element={<SearchPage />} />
-          <Route path="/favorites" element={<FavoritesPage />} />
-        </Routes>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<SearchPage />} />
+            <Route path="/favorites" element={<FavoritesPage />} />
+          </Routes>
+        </ErrorBoundary>
       </main>
 
       {/* Footer con copyright e crediti */}
