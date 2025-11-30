@@ -4,7 +4,6 @@ Applicazione web full-stack per la ricerca e il salvataggio di foto da Unsplash.
 
 ## 📋 Indice
 
-- [Panoramica](#panoramica)
 - [Stack Tecnologico](#stack-tecnologico)
 - [Avvio Rapido](#avvio-rapido)
 - [Configurazione Dettagliata](#configurazione-dettagliata)
@@ -16,26 +15,13 @@ Applicazione web full-stack per la ricerca e il salvataggio di foto da Unsplash.
 - [Comandi Utili](#comandi-utili)
 - [Troubleshooting](#troubleshooting)
 
-## Panoramica
-
-Luxor è un'applicazione full-stack che permette di:
-
-✨ **Funzionalità Principali:**
-- 🔍 Cercare foto dalla libreria Unsplash
-- ❤️ Salvare foto preferite in una collezione personale
-- 🎨 Interfaccia moderna e responsive con dark mode
-- 🚀 Feedback visivo immediato con spinner di caricamento
-- 📱 Design responsive per mobile, tablet e desktop
-- 🔄 Aggiornamenti ottimistici per UX fluida
-- 🎯 Identificazione utente tramite UUID (senza autenticazione)
-
 ## Stack Tecnologico
 
 ### Frontend
 - **React** 19 - UI library
 - **TypeScript** 5.x - Type safety
-- **Tailwind CSS** 3.x - Styling
-- **Vite** 6.x - Build tool
+- **Tailwind CSS** 4.x - Styling
+- **Vite** 7.x - Build tool
 - **Vitest** - Testing framework
 - **React Router** 7.x - Routing
 
@@ -317,6 +303,39 @@ luxor-project/
 
 ## Architettura
 
+### Scelte Progettuali Chiave
+
+#### Backend: DTO e Type Safety
+L'applicazione utilizza **Data Transfer Objects (DTO)** (es. `PhotoData`) per incapsulare i dati provenienti da Unsplash.
+- **Perché?**: Evita l'uso di array associativi non tipizzati ("array hell"), garantisce che la struttura interna sia indipendente dalle modifiche dell'API esterna e fornisce autocompletamento nell'IDE.
+- **Implementazione**: Classi PHP 8.2 `readonly` con property promotion.
+
+#### Backend: Caching Intelligente
+Le richieste verso Unsplash sono cachate per 1 ora.
+- **Perché?**: Riduce drasticamente la latenza per ricerche frequenti e preserva il rate limit dell'API Unsplash.
+- **Logica**: La chiave di cache è univoca per query e paginazione (`unsplash_search_{query}_{page}`).
+
+#### Identificazione Utente "Frictionless"
+Il sistema non richiede registrazione classica ma identifica l'utente tramite UUID.
+- **Frontend**: L'hook `useUserId` genera un UUID v4 al primo accesso e lo persiste nel `localStorage`.
+- **Backend**: Il middleware `UserIdentifierMiddleware` valida l'header `X-User-ID` su ogni richiesta API (regex check).
+- **Vantaggio**: Esperienza utente immediata senza barriere all'ingresso, mantenendo la persistenza dei dati.
+
+#### Pattern Repository
+L'accesso ai dati è astratto tramite il pattern Repository (`FavoriteRepository`).
+- **Implementazione**: Il controller non usa mai direttamente il modello Eloquent, ma passa attraverso un'interfaccia.
+- **Vantaggio**: Disaccoppia la logica di business dall'accesso ai dati, facilitando il testing (mocking dell'interfaccia) e future migrazioni dello storage.
+
+#### Strategia di Error Handling
+- **Frontend**: Un `ErrorBoundary` globale cattura crash imprevisti di React, mentre il Context gestisce errori API specifici con notifiche Toast non intrusive.
+- **Backend**: Logging contestuale nel Service layer (es. parametri query falliti) prima di rilanciare le eccezioni al gestore globale.
+
+#### Validazione Robusta
+Ogni richiesta in ingresso è validata tramite **Form Requests** dedicate (es. `StoreFavoriteRequest`).
+- **Sicurezza**: Previene injection e dati malformati prima che raggiungano il controller.
+- **Feedback**: Restituisce messaggi di errore dettagliati e localizzati (422 Unprocessable Entity).
+- **Struttura**: Valida anche oggetti JSON annidati (es. `photo_data.urls.regular`).
+
 ### Architettura Frontend
 
 #### Componenti Principali
@@ -329,55 +348,6 @@ luxor-project/
 - **PhotoCard.tsx**: Card singola foto con toggle preferiti e spinner
 - **Toast.tsx**: Notifiche temporanee per operazioni
 - **ErrorBoundary.tsx**: Gestione errori React
-
-#### Context API
-
-**FavoritesContext** - State management globale preferiti
-
-```typescript
-interface FavoritesContextValue {
-  favorites: Favorite[]              // Array completo preferiti
-  favoriteIds: Set<string>           // Set ID per lookup O(1)
-  isLoading: boolean                 // Caricamento iniziale
-  savingPhotoIds: Set<string>        // ID in fase di salvataggio
-  error: string | null               // Errore corrente
-  toasts: ToastMessage[]             // Notifiche
-  toggleFavorite: (photo) => Promise<void>
-  reloadFavorites: () => Promise<void>
-  clearError: () => void
-  removeToast: (id: string) => void
-}
-```
-
-**Caratteristiche:**
-- Aggiornamento ottimistico con rollback automatico
-- Tracking stato salvataggio per feedback visivo
-- Toast notifications per operazioni
-- Gestione errori centralizzata
-
-#### Custom Hooks
-
-**useUnsplashSearch** - Gestione ricerca foto
-
-```typescript
-const {
-  photos,           // Risultati ricerca
-  isLoading,        // Stato caricamento
-  error,            // Errore
-  currentPage,      // Pagina corrente
-  totalPages,       // Totale pagine
-  currentQuery,     // Query attiva
-  search,           // Funzione ricerca
-  goToPage,         // Cambio pagina
-  clearError        // Pulisci errore
-} = useUnsplashSearch({ perPage: 12 })
-```
-
-**useUserId** - Identificazione utente
-
-```typescript
-const userId = useUserId()  // Genera e salva UUID in localStorage
-```
 
 ### Architettura Backend
 
@@ -822,177 +792,3 @@ docker compose exec react npm test
 docker compose down --rmi all        # Rimuovi anche immagini
 docker system prune -a               # Pulizia completa Docker
 ```
-
-## Troubleshooting
-
-### Frontend
-
-#### Errore "Connection Refused"
-
-**Problema:** `GET http://localhost/api/favorites net::ERR_CONNECTION_REFUSED`
-
-**Soluzione:**
-```bash
-# Verifica che il backend sia in esecuzione
-cd server
-php artisan serve
-
-# Verifica configurazione .env
-# client/.env deve contenere:
-VITE_API_URL=http://localhost:8000/api
-```
-
-#### Spinner non visibile
-
-**Problema:** Lo spinner di caricamento non appare
-
-**Soluzione:**
-- Verifica che il componente importi `SpinnerIcon` da `./icons`
-- Controlla che Tailwind includa l'animazione `animate-spin`
-- Rebuild del frontend: `npm run build`
-
-### Backend
-
-#### Database non trovato
-
-**Problema:** `Database file does not exist`
-
-**Soluzione:**
-```bash
-# Windows (PowerShell)
-New-Item -Path database/database.sqlite -ItemType File -Force
-
-# Linux/Mac
-touch database/database.sqlite
-
-# Esegui migrazioni
-php artisan migrate:fresh
-```
-
-#### Tabella cache mancante
-
-**Problema:** `no such table: cache`
-
-**Soluzione:**
-```bash
-php artisan cache:table
-php artisan migrate
-```
-
-#### Errore CORS
-
-**Problema:** Errori CORS in console browser
-
-**Soluzione:**
-
-Laravel 11+ usa CORS nativo. Verifica `config/cors.php`:
-
-```php
-'paths' => ['api/*'],
-'allowed_origins' => ['http://localhost:3000'],
-'allowed_methods' => ['*'],
-'allowed_headers' => ['*'],
-```
-
-Assicurati che il middleware sia attivo in `bootstrap/app.php`.
-
-#### Chiave Unsplash non funziona
-
-**Problema:** Ricerca foto non restituisce risultati
-
-**Soluzioni:**
-1. Verifica chiave in `.env`: `UNSPLASH_ACCESS_KEY=...`
-2. Pulisci cache config: `php artisan config:clear`
-3. Controlla limiti rate Unsplash (50 req/h per app demo)
-4. Verifica che l'app sia approvata su Unsplash
-5. Test chiave con curl:
-```bash
-curl "https://api.unsplash.com/search/photos?query=test&client_id=TUA_CHIAVE"
-```
-
-#### Header X-User-ID mancante
-
-**Problema:** `Missing X-User-ID header`
-
-**Soluzione:**
-
-Il middleware richiede l'header in tutte le richieste API. Verifica che:
-1. Il frontend invii l'header (controllare `favorites.ts` e `unsplash.ts`)
-2. L'UUID sia valido (formato UUID v4)
-3. localStorage contenga `luxor_user_id`
-
-Per test manuali:
-```bash
-curl -H "X-User-ID: 550e8400-e29b-41d4-a716-446655440000" \
-     http://localhost:8000/api/favorites
-```
-
-### Docker
-
-#### Port già in uso
-
-**Problema:** `Bind for 0.0.0.0:8000 failed: port is already allocated`
-
-**Soluzione:**
-```bash
-# Trova processo sulla porta
-# Windows
-netstat -ano | findstr :8000
-taskkill /PID <pid> /F
-
-# Linux/Mac
-lsof -ti:8000 | xargs kill -9
-
-# Oppure modifica porta in docker-compose.yml
-ports:
-  - "8001:80"  # Usa porta 8001 invece di 8000
-```
-
-#### Container non parte
-
-**Problema:** Container in stato "Exited"
-
-**Soluzione:**
-```bash
-# Vedi log errori
-docker compose logs php
-docker compose logs react
-
-# Rebuild forzato
-docker compose down
-docker compose up --build --force-recreate
-```
-
-### Dipendenze PHP Mancanti
-
-**Ubuntu/Debian:**
-```bash
-sudo apt update
-sudo apt install php8.2 php8.2-sqlite3 php8.2-mbstring \
-                 php8.2-xml php8.2-curl php8.2-zip
-```
-
-**Windows:**
-
-Abilita estensioni in `php.ini`:
-```ini
-extension=pdo_sqlite
-extension=sqlite3
-extension=mbstring
-extension=fileinfo
-extension=openssl
-extension=curl
-```
-
-## Licenza
-
-MIT License - Vedi file LICENSE per dettagli.
-
-## Manuale Utente
-
-Per istruzioni d'uso dell'applicazione, consulta [MANUALE_UTENTE.md](./MANUALE_UTENTE.md).
-
----
-
-**Versione:** 1.0.0  
-**Ultimo aggiornamento:** Novembre 2025
