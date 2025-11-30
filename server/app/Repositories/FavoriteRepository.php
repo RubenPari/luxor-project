@@ -53,7 +53,7 @@ class FavoriteRepository implements FavoriteRepositoryInterface
      * Salva o aggiorna un preferito per un utente specifico.
      *
      * Utilizza updateOrCreate per gestire sia inserimento che aggiornamento:
-     * - Se (user_id, photo_id) esiste: aggiorna photo_data
+     * - Se (user_id, photo_id) esiste: aggiorna i dati
      * - Altrimenti: crea nuovo record
      *
      * @param string $photoId ID univoco della foto su Unsplash
@@ -65,7 +65,32 @@ class FavoriteRepository implements FavoriteRepositoryInterface
     {
         return Favorite::updateOrCreate(
             ['photo_id' => $photoId, 'user_id' => $userId],
-            ['photo_data' => $photoData]
+            [
+                'width' => $photoData['width'] ?? null,
+                'height' => $photoData['height'] ?? null,
+                'description' => $photoData['description'] ?? null,
+                'alt_description' => $photoData['alt_description'] ?? null,
+                
+                'url_raw' => $photoData['urls']['raw'] ?? null,
+                'url_full' => $photoData['urls']['full'] ?? null,
+                'url_regular' => $photoData['urls']['regular'] ?? null,
+                'url_small' => $photoData['urls']['small'] ?? null,
+                'url_thumb' => $photoData['urls']['thumb'] ?? null,
+                
+                'link_self' => $photoData['links']['self'] ?? null,
+                'link_html' => $photoData['links']['html'] ?? null,
+                'link_download' => $photoData['links']['download'] ?? null,
+                
+                'user_unsplash_id' => $photoData['user']['id'] ?? null,
+                'user_username' => $photoData['user']['username'] ?? null,
+                'user_name' => $photoData['user']['name'] ?? null,
+                'user_portfolio_url' => $photoData['user']['portfolio_url'] ?? null,
+                'user_profile_image' => $photoData['user']['profile_image'] ?? null,
+                
+                'photo_created_at' => isset($photoData['created_at']) 
+                    ? date('Y-m-d H:i:s', strtotime($photoData['created_at']))
+                    : null,
+            ]
         );
     }
 
