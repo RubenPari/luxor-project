@@ -13,6 +13,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Constants\ApiConstants;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UnsplashSearchRequest;
 use App\Services\UnsplashService;
@@ -65,7 +66,7 @@ class UnsplashController extends Controller
             // Parametri di ricerca con valori di default
             $query = $validated['query'];
             $page = $validated['page'] ?? 1;
-            $perPage = $validated['per_page'] ?? config('unsplash.default_per_page', 12);
+            $perPage = $validated['per_page'] ?? config('unsplash.default_per_page', ApiConstants::DEFAULT_PER_PAGE);
 
             // Delega al servizio la chiamata all'API Unsplash
             $data = $this->unsplashService->searchPhotos($query, $page, $perPage);

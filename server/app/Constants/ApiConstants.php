@@ -18,17 +18,6 @@ namespace App\Constants;
  */
 final class ApiConstants
 {
-    // === CORS ===
-
-    /** Durata cache preflight CORS in secondi (24 ore) */
-    public const CORS_MAX_AGE_SECONDS = 86400;
-
-    /** Metodi HTTP permessi per CORS */
-    public const CORS_ALLOWED_METHODS = 'GET, POST, PUT, PATCH, DELETE, OPTIONS';
-
-    /** Header permessi per CORS */
-    public const CORS_ALLOWED_HEADERS = 'Content-Type, Authorization, X-Requested-With, Accept, Origin';
-
     // === PAGINAZIONE ===
 
     /** Numero di risultati per pagina di default */
@@ -41,4 +30,7 @@ final class ApiConstants
 
     /** Nome applicazione per attribuzione Unsplash */
     public const UNSPLASH_UTM_SOURCE = 'Luxor Project';
+
+    /** Durata cache risultati ricerca Unsplash in secondi (1 ora) */
+    public const UNSPLASH_CACHE_TTL = 3600;
 }

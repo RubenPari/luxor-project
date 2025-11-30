@@ -18,6 +18,7 @@ namespace App\Services;
 use App\Constants\ApiConstants;
 use App\DataTransferObjects\PhotoData;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Unsplash\HttpClient;
 use Unsplash\Search;
@@ -52,39 +53,43 @@ class UnsplashService
      */
     public function searchPhotos(string $query, int $page = 1, int $perPage = ApiConstants::DEFAULT_PER_PAGE): array
     {
-        try {
-            $accessKey = config('unsplash.access_key');
+        $cacheKey = "unsplash_search_{$query}_{$page}_{$perPage}";
 
-            if (empty($accessKey)) {
-                throw new Exception('Unsplash access key is not configured');
+        return Cache::remember($cacheKey, ApiConstants::UNSPLASH_CACHE_TTL, function () use ($query, $page, $perPage) {
+            try {
+                $accessKey = config('unsplash.access_key');
+
+                if (empty($accessKey)) {
+                    throw new Exception('Unsplash access key is not configured');
+                }
+
+                HttpClient::init([
+                    'applicationId' => $accessKey,
+                    'utmSource' => ApiConstants::UNSPLASH_UTM_SOURCE,
+                ]);
+
+                // Esegue la ricerca tramite la libreria Unsplash
+                $pageResult = Search::photos($query, $page, $perPage);
+                $photos = $pageResult->getArrayObject();
+
+                // Restituisce i dati formattati con metadati paginazione
+                return [
+                    'results' => $this->formatPhotos($photos->getArrayCopy()),
+                    'total' => $pageResult->getTotal(),
+                    'total_pages' => $pageResult->getTotalPages(),
+                ];
+            } catch (Exception $e) {
+                // Logga l'errore con contesto per debugging
+                Log::error('Unsplash API error: '.$e->getMessage(), [
+                    'query' => $query,
+                    'page' => $page,
+                    'per_page' => $perPage,
+                ]);
+
+                // Rilancia l'eccezione per gestirla nel controller
+                throw $e;
             }
-
-            HttpClient::init([
-                'applicationId' => $accessKey,
-                'utmSource' => ApiConstants::UNSPLASH_UTM_SOURCE,
-            ]);
-
-            // Esegue la ricerca tramite la libreria Unsplash
-            $pageResult = Search::photos($query, $page, $perPage);
-            $photos = $pageResult->getArrayObject();
-
-            // Restituisce i dati formattati con metadati paginazione
-            return [
-                'results' => $this->formatPhotos($photos->getArrayCopy()),
-                'total' => $pageResult->getTotal(),
-                'total_pages' => $pageResult->getTotalPages(),
-            ];
-        } catch (Exception $e) {
-            // Logga l'errore con contesto per debugging
-            Log::error('Unsplash API error: '.$e->getMessage(), [
-                'query' => $query,
-                'page' => $page,
-                'per_page' => $perPage,
-            ]);
-
-            // Rilancia l'eccezione per gestirla nel controller
-            throw $e;
-        }
+        });
     }
 
     /**

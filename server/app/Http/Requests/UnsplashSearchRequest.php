@@ -12,6 +12,7 @@
 
 namespace App\Http\Requests;
 
+use App\Constants\ApiConstants;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -46,7 +47,7 @@ class UnsplashSearchRequest extends FormRequest
             'page' => ['nullable', 'integer', 'min:1'],
 
             // Risultati per pagina - opzionale, 1-30 (limite API Unsplash)
-            'per_page' => ['nullable', 'integer', 'min:1', 'max:30'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:'.ApiConstants::MAX_PER_PAGE],
         ];
     }
 
@@ -73,7 +74,7 @@ class UnsplashSearchRequest extends FormRequest
             // Errori per il campo per_page
             'per_page.integer' => 'The per_page must be a valid integer.',
             'per_page.min' => 'The per_page must be at least 1.',
-            'per_page.max' => 'The per_page must not exceed 30.',
+            'per_page.max' => 'The per_page must not exceed '.ApiConstants::MAX_PER_PAGE.'.',
         ];
     }
 }
