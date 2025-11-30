@@ -29,6 +29,24 @@ use Tests\TestCase;
 class UnsplashSearchTest extends TestCase
 {
     /**
+     * UUID valido per i test.
+     */
+    private const TEST_USER_ID = '550e8400-e29b-41d4-a716-446655440000';
+
+    /**
+     * Helper per effettuare richieste con header obbligatori.
+     *
+     * @param string $uri
+     * @return \Illuminate\Testing\TestResponse
+     */
+    protected function getJsonWithHeaders(string $uri)
+    {
+        return $this->withHeaders([
+            'X-User-ID' => self::TEST_USER_ID,
+        ])->getJson($uri);
+    }
+
+    /**
      * Test: il parametro query è obbligatorio.
      * 
      * Una richiesta senza query deve restituire:
@@ -40,7 +58,7 @@ class UnsplashSearchTest extends TestCase
     public function test_search_requires_query_parameter(): void
     {
         // Richiesta senza parametri
-        $response = $this->getJson('/api/unsplash/search');
+        $response = $this->getJsonWithHeaders('/api/unsplash/search');
 
         // Deve fallire la validazione
         $response->assertStatus(422);
@@ -58,7 +76,7 @@ class UnsplashSearchTest extends TestCase
     public function test_search_validates_page_parameter(): void
     {
         // page=0 non è valido
-        $response = $this->getJson('/api/unsplash/search?query=nature&page=0');
+        $response = $this->getJsonWithHeaders('/api/unsplash/search?query=nature&page=0');
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['page']);
@@ -75,7 +93,7 @@ class UnsplashSearchTest extends TestCase
     public function test_search_validates_per_page_parameter(): void
     {
         // per_page=50 supera il limite di 30
-        $response = $this->getJson('/api/unsplash/search?query=nature&per_page=50');
+        $response = $this->getJsonWithHeaders('/api/unsplash/search?query=nature&per_page=50');
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['per_page']);
@@ -95,7 +113,7 @@ class UnsplashSearchTest extends TestCase
         // Rimuove temporaneamente la chiave API
         config(['unsplash.access_key' => null]);
 
-        $response = $this->getJson('/api/unsplash/search?query=nature');
+        $response = $this->getJsonWithHeaders('/api/unsplash/search?query=nature');
 
         // Deve fallire con errore server
         $response->assertStatus(500);
@@ -123,7 +141,7 @@ class UnsplashSearchTest extends TestCase
         }
 
         // Richiesta con tutti i parametri validi
-        $response = $this->getJson('/api/unsplash/search?query=nature&page=1&per_page=10');
+        $response = $this->getJsonWithHeaders('/api/unsplash/search?query=nature&page=1&per_page=10');
 
         // Può essere 200 (successo) o 500 (errore API esterno)
         $this->assertContains($response->status(), [200, 500]);
