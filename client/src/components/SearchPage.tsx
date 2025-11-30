@@ -34,8 +34,8 @@ import { PHOTOS_PER_PAGE } from '../constants'
 export default function SearchPage() {
   // === CONTEXT E HOOKS ===
   
-  /** Context dei preferiti per ID e toggle */
-  const { favoriteIds, toggleFavorite } = useFavorites()
+  /** Context dei preferiti per ID, toggle e stato salvataggio */
+  const { favoriteIds, savingPhotoIds, toggleFavorite } = useFavorites()
   
   /** Stato locale per l'input di ricerca (controllato) */
   const [query, setQuery] = useState('')
@@ -130,6 +130,7 @@ export default function SearchPage() {
           photos={photos} 
           isLoading={isLoading} 
           favoritePhotoIds={favoriteIds}
+          savingPhotoIds={savingPhotoIds}
           onToggleFavorite={toggleFavorite}
         />
       </div>

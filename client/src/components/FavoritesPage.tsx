@@ -35,9 +35,10 @@ export default function FavoritesPage() {
    * Dati e azioni dal context dei preferiti:
    * - favorites: array completo dei preferiti con photo_data
    * - isLoading: flag per stato di caricamento iniziale
+   * - savingPhotoIds: set di ID in fase di salvataggio/rimozione
    * - toggleFavorite: funzione per aggiungere/rimuovere preferiti
    */
-  const { favorites, isLoading, toggleFavorite } = useFavorites()
+  const { favorites, isLoading, savingPhotoIds, toggleFavorite } = useFavorites()
 
   // === DERIVAZIONE DATI ===
   
@@ -82,6 +83,7 @@ export default function FavoritesPage() {
           photos={photos}
           isLoading={isLoading}
           favoritePhotoIds={favoritePhotoIds}
+          savingPhotoIds={savingPhotoIds}
           onToggleFavorite={toggleFavorite}  // Permette rimozione dai preferiti
         />
       </div>
