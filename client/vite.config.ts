@@ -50,6 +50,7 @@ export default defineConfig({
    * - port: 3000 porta standard usata sia dentro che fuori Docker
    * - strictPort: true impedisce a Vite di cambiare porta automaticamente
    * - usePolling: true abilita il file watching in ambienti virtualizzati (Docker/WSL)
+   * - proxy: inoltra le richieste /api/* al backend Laravel su porta 8000
    */
   server: {
     host: '0.0.0.0',
@@ -57,6 +58,13 @@ export default defineConfig({
     strictPort: true,
     watch: {
       usePolling: true,
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 })
