@@ -16,8 +16,9 @@ import type { UnsplashPhoto, FavoriteResponse } from '../types/unsplash'
  * URL base dell'API backend.
  * Configurabile tramite variabile d'ambiente per supportare diversi ambienti
  * (sviluppo, staging, produzione).
+ * In sviluppo, usa il proxy Vite configurato per /api
  */
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 /**
  * Ottiene i header comuni per tutte le richieste API.
@@ -49,6 +50,15 @@ export async function getFavorites(userId: string): Promise<FavoriteResponse> {
     const response = await fetch(`${API_BASE_URL}/favorites`, {
       headers: getHeaders(userId),
     })
+    
+    if (!response.ok) {
+      return {
+        success: false,
+        message: `HTTP error ${response.status}: ${response.statusText}`,
+        error: `Failed to fetch favorites from server`,
+      }
+    }
+    
     return await response.json()
   } catch (error) {
     console.error('Failed to fetch favorites:', error)
@@ -85,6 +95,15 @@ export async function addFavorite(photo: UnsplashPhoto, userId: string): Promise
         photo_data: photo,
       }),
     })
+    
+    if (!response.ok) {
+      return {
+        success: false,
+        message: `HTTP error ${response.status}: ${response.statusText}`,
+        error: `Failed to add favorite to server`,
+      }
+    }
+    
     return await response.json()
   } catch (error) {
     console.error('Failed to add favorite:', error)
@@ -117,6 +136,15 @@ export async function removeFavorite(photoId: string, userId: string): Promise<F
       method: 'DELETE',
       headers: getHeaders(userId),
     })
+    
+    if (!response.ok) {
+      return {
+        success: false,
+        message: `HTTP error ${response.status}: ${response.statusText}`,
+        error: `Failed to remove favorite from server`,
+      }
+    }
+    
     return await response.json()
   } catch (error) {
     console.error('Failed to remove favorite:', error)
