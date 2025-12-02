@@ -15,23 +15,26 @@
 
 import type { ReactElement } from 'react'
 import { render, type RenderOptions } from '@testing-library/react'
-import { BrowserRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router-dom'
 import { FavoritesProvider } from '../contexts/FavoritesContext'
+
+/**
+ * Opzioni estese per il render personalizzato.
+ */
+interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
+  /** Route iniziale per il router (default: '/') */
+  initialRoute?: string
+}
 
 /**
  * Funzione render personalizzata che wrappa i componenti con i provider.
  * 
  * Wrappa automaticamente il componente in test con:
+ * - MemoryRouter: per il routing isolato tra i test
  * - FavoritesProvider: per il context dei preferiti
  * 
- * Aggiungere qui altri provider globali se necessario:
- * - Router (React Router)
- * - ThemeProvider
- * - Redux Store
- * - etc.
- * 
  * @param ui - Elemento React da renderizzare
- * @param options - Opzioni di render (esclude 'wrapper' che viene gestito internamente)
+ * @param options - Opzioni di render con initialRoute opzionale
  * @returns Risultato del render con utilities di query
  * 
  * @example
@@ -41,16 +44,21 @@ import { FavoritesProvider } from '../contexts/FavoritesContext'
  *   render(<MioComponente />)
  *   expect(screen.getByText('testo')).toBeInTheDocument()
  * })
+ * 
+ * test('con route specifica', () => {
+ *   render(<App />, { initialRoute: '/favorites' })
+ * })
  */
 const customRender = (
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>  // Esclude wrapper dalle opzioni
+  { initialRoute = '/', ...options }: CustomRenderOptions = {}
 ) => {
   // Wrappa il componente con tutti i provider necessari
+  // MemoryRouter garantisce isolamento tra i test
   return render(
-    <BrowserRouter>
+    <MemoryRouter initialEntries={[initialRoute]}>
       <FavoritesProvider>{ui}</FavoritesProvider>
-    </BrowserRouter>,
+    </MemoryRouter>,
     { ...options }
   )
 }
