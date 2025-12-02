@@ -303,7 +303,6 @@ luxor-project/
 │
 ├── docker-compose.yml
 ├── .gitignore
-├── MANUALE_UTENTE.md
 └── README.md                    # Questo file
 ```
 
