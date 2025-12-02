@@ -175,48 +175,40 @@ La variabile `VITE_API_TARGET` permette di configurare il target del proxy API.
 #### 1. Preparazione
 
 ```bash
-# Clonare e configurare
+# 1. Clonare il repository
 git clone <repository-url>
 cd luxor-project
-cp server/.env.example server/.env
+
+# 2. Configurare Backend
+cd server
+cp .env.example .env
+touch database/database.sqlite
+# Modificare .env inserendo la UNSPLASH_ACCESS_KEY
+cd ..
 ```
 
-**Configurare `server/.env` per Docker:**
+**Configurazione Environment:**
 
-```env
-APP_NAME=Luxor
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=http://localhost
+- **Backend (`server/.env`)**:
+  È necessario impostare solo `UNSPLASH_ACCESS_KEY`.
+  Le variabili per il database (`DB_CONNECTION`, `DB_DATABASE`) vengono iniettate automaticamente da Docker Compose.
 
-DB_CONNECTION=sqlite
-DB_DATABASE=/var/www/html/database/database.sqlite
+- **Frontend**:
+  Non è necessario configurare nulla. Docker Compose imposta automaticamente `VITE_API_URL=http://localhost/api`.
 
-CACHE_STORE=database
-
-UNSPLASH_ACCESS_KEY=la_tua_chiave_unsplash
-```
-
-**File `client/.env` per Docker:**
-
-```env
-# Per Docker
-VITE_API_URL=http://localhost/api
-```
-
-#### 2. Avviare con Docker Compose
+#### 2. Avviare e Installare Dipendenze
 
 ```bash
-# Costruire e avviare
+# 1. Avviare i container
 docker compose up -d --build
 
-# Verificare container attivi
-docker compose ps
+# 2. Installare dipendenze PHP (Backend)
+docker compose exec php composer install
 
-# Vedere i log
-docker compose logs -f
+# 3. Generare Application Key
+docker compose exec php php artisan key:generate
 
-# Eseguire migrazioni
+# 4. Eseguire migrazioni Database
 docker compose exec php php artisan migrate
 ```
 
