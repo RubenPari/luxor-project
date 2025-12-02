@@ -140,7 +140,7 @@ APP_URL=http://localhost:8000
 DB_CONNECTION=sqlite
 DB_DATABASE=/percorso/assoluto/server/database/database.sqlite
 
-CACHE_DRIVER=database
+CACHE_STORE=database
 
 UNSPLASH_ACCESS_KEY=la_tua_chiave_unsplash
 ```
@@ -162,7 +162,13 @@ cp .env.example .env
 ```env
 # Per sviluppo locale senza Docker
 VITE_API_URL=http://localhost:8000/api
+VITE_API_TARGET=http://localhost:8000
 ```
+
+**Nota sul Proxy:**
+La variabile `VITE_API_TARGET` permette di configurare il target del proxy API.
+- Se non definita, il default è `http://nginx:80` (per Docker).
+- Per sviluppo locale, impostarla a `http://localhost:8000`.
 
 ### Setup con Docker
 
@@ -186,7 +192,7 @@ APP_URL=http://localhost
 DB_CONNECTION=sqlite
 DB_DATABASE=/var/www/html/database/database.sqlite
 
-CACHE_DRIVER=database
+CACHE_STORE=database
 
 UNSPLASH_ACCESS_KEY=la_tua_chiave_unsplash
 ```
